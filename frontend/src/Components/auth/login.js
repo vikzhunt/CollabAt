@@ -73,9 +73,9 @@ const Login = () => {
               fullWidth
               sx={{
                 mt: 2,
-                backgroundColor: '#6a11cb',
+                backgroundColor: '#006BFF',
                 '&:hover': {
-                  backgroundColor: '#2575fc',
+                  backgroundColor: '#0B2F9F',
                 },
               }}
             >

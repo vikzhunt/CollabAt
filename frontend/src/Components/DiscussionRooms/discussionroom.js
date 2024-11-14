@@ -1,6 +1,7 @@
 // src/Components/DiscussionRooms/DiscussionRooms.js
 import React, { useState, useEffect } from 'react';
 import { Typography } from '@mui/material';
+import { AttachFile } from '@mui/icons-material';
 import io from 'socket.io-client';
 
 const socket = io.connect('http://localhost:8080'); 
@@ -13,6 +14,7 @@ const DiscussionRooms = () => {
   ]);
   const [currentRoom, setCurrentRoom] = useState('');
   const [message, setMessage] = useState('');
+  const [file, setFile] = useState(null);
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
@@ -32,15 +34,17 @@ const DiscussionRooms = () => {
   };
 
   const sendMessage = () => {
-    if (message && currentRoom) {
+    if ((message || file) && currentRoom) {
       const messageData = {
         room: currentRoom,
         author: 'User', // Replace with actual user data
         message,
         time: new Date().toLocaleTimeString(),
+        file: file ? URL.createObjectURL(file) : null,
       };
       socket.emit('send_message', messageData);
       setMessage('');
+      setFile(null);
     }
   };
 
@@ -49,6 +53,7 @@ const DiscussionRooms = () => {
       <Typography variant="h4" className="text-center font-extrabold text-blue-900/90 mb-4 pb-4">
         Discussion Rooms
       </Typography>
+      
       {/* Room Selection */}
       <div className="mb-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
         {rooms.map((room, index) => (
@@ -76,14 +81,25 @@ const DiscussionRooms = () => {
           <div className="bg-gray-100 p-6 rounded-lg mb-4 h-64 overflow-y-scroll border border-gray-300">
             {messages.map((msg, index) => (
               <div key={index} className="mb-2">
-                <p className="text-gray-700">
-                  <strong className="text-blue-700">{msg.author}</strong> <span className="text-xs text-gray-500">[{msg.time}]</span>:
-                  <span className="ml-2">{msg.message}</span>
-                </p>
+                {msg.message.trim() && (
+                  <p className="text-gray-700">
+                    <strong className="text-blue-700">{msg.author}</strong> <span className="text-xs text-gray-500">[{msg.time}]</span>:
+                    <span className="ml-2">{msg.message}</span>
+                  </p>
+                )}
+                
+                {msg.file && (
+                  <p className="text-gray-700">
+                    <strong className="text-blue-700">{msg.author}</strong> <span className="text-xs text-gray-500">[{msg.time}]</span>:
+                    <a href={msg.file} target="_blank" rel="noopener noreferrer" className="text-blue-600">
+                      View File
+                    </a>
+                  </p>
+                )}
               </div>
             ))}
           </div>
-          <div className="flex space-x-2">
+          <div className="flex space-x-2 items-center">
             <input 
               type="text" 
               value={message} 
@@ -91,6 +107,15 @@ const DiscussionRooms = () => {
               placeholder="Type a message..." 
               className="flex-grow px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+            <label htmlFor="file-upload" className="cursor-pointer text-gray-500 hover:text-blue-500">
+              <AttachFile className='text-red-600/50'/>
+              <input
+                type="file"
+                id="file-upload"
+                onChange={(e) => setFile(e.target.files[0])}
+                style={{ display: 'none' }}
+              />
+            </label>
             <button 
               onClick={sendMessage} 
               className="bg-blue-900/90 hover:bg-blue-800/90 text-white font-semibold py-2 px-6 rounded-lg transition duration-200"

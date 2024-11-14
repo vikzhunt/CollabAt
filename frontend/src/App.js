@@ -1,4 +1,5 @@
 import './App.css';
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Homepage from "./Components/Homepage/body";
 import Dashboard from "./Components/dashboard/main";
 import Profile from "./Components/Profile/profileform";
@@ -8,7 +9,6 @@ import ResourceSharing from "./Components/Resources/ResourceSharing"
 import TeamGroups from './Components/TeamGroup/teamgroup';
 import InsightsAndBlog from './Components/Insights/insight';
 import EventListings from './Components/events/eventlisting';
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import DiscussionRooms from './Components/DiscussionRooms/discussionroom';
 import Sidebar from './Components/Navbar/sidebar';
 import Navbar from './Components/Navbar/navbar';

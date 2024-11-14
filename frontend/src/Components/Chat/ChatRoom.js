@@ -110,7 +110,7 @@ const ChatRoom = () => {
                 <Button
                   onClick={handleSendMessage}
                   variant="contained"
-                  className="bg-blue-900/90 hover:bg-blue-800/90 transition duration-200"
+                  className="h-12 w-24 bg-blue-900/90 hover:bg-blue-800/90 transition duration-200"
                 >
                   Send
                 </Button>

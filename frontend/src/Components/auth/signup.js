@@ -1,40 +1,57 @@
 // src/Components/Auth/Signup.js
-import React, { useState } from 'react';
-import { TextField, Button, Typography, Box, Card, CardContent, CardActions } from '@mui/material';
-import { Link, useNavigate } from 'react-router-dom';
-
+import React, { useState } from "react";
+import {
+  TextField,
+  Button,
+  Typography,
+  Box,
+  Card,
+  CardContent,
+  CardActions,
+} from "@mui/material";
+import { Link, useNavigate } from "react-router-dom";
+import { signUp } from "./../../APIs/User";
 const Signup = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleSignup = (e) => {
-    e.preventDefault();
-    console.log('Signup Attempt:', { name, email, password, confirmPassword });
-
-    // Implement SignUp
-    // If successful redirect to ProfileForm after signup
-    navigate('/profile'); 
+  const handleSignup = async (e) => {
+    let result = await signUp({ name, email, password });
+    console.log(result.data);
   };
 
   return (
     <Box
       sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '100vh',
-        background: 'linear-gradient(45deg, #2196f3 0%, #1976d2 100%)', 
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "100vh",
+        background: "linear-gradient(45deg, #2196f3 0%, #1976d2 100%)",
       }}
     >
-      <Card sx={{ maxWidth: 400, width: '100%', padding: 3, borderRadius: '12px', boxShadow: 3 }}>
+      <Card
+        sx={{
+          maxWidth: 400,
+          width: "100%",
+          padding: 3,
+          borderRadius: "12px",
+          boxShadow: 3,
+        }}
+      >
         <CardContent>
-          <Typography variant="h4" align="center" mb={2} sx={{ fontWeight: 'bold', color: '#333' }}>
+          <Typography
+            variant="h4"
+            align="center"
+            mb={2}
+            sx={{ fontWeight: "bold", color: "#333" }}
+          >
             Create an Account
           </Typography>
-          <form onSubmit={handleSignup}>
+          <form>
             <TextField
               label="Name"
               fullWidth
@@ -42,10 +59,10 @@ const Signup = () => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               sx={{
-                '& .MuiInputLabel-root': { color: '#2196f3' },
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': { borderColor: '#2196f3' },
-                  '&:hover fieldset': { borderColor: '#1976d2' },
+                "& .MuiInputLabel-root": { color: "#2196f3" },
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": { borderColor: "#2196f3" },
+                  "&:hover fieldset": { borderColor: "#1976d2" },
                 },
               }}
             />
@@ -57,10 +74,10 @@ const Signup = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               sx={{
-                '& .MuiInputLabel-root': { color: '#2196f3' },
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': { borderColor: '#2196f3' },
-                  '&:hover fieldset': { borderColor: '#1976d2' },
+                "& .MuiInputLabel-root": { color: "#2196f3" },
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": { borderColor: "#2196f3" },
+                  "&:hover fieldset": { borderColor: "#1976d2" },
                 },
               }}
             />
@@ -72,10 +89,10 @@ const Signup = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               sx={{
-                '& .MuiInputLabel-root': { color: '#2196f3' },
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': { borderColor: '#2196f3' },
-                  '&:hover fieldset': { borderColor: '#1976d2' },
+                "& .MuiInputLabel-root": { color: "#2196f3" },
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": { borderColor: "#2196f3" },
+                  "&:hover fieldset": { borderColor: "#1976d2" },
                 },
               }}
             />
@@ -87,23 +104,23 @@ const Signup = () => {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               sx={{
-                '& .MuiInputLabel-root': { color: '#2196f3' },
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': { borderColor: '#2196f3' },
-                  '&:hover fieldset': { borderColor: '#1976d2' },
+                "& .MuiInputLabel-root": { color: "#2196f3" },
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": { borderColor: "#2196f3" },
+                  "&:hover fieldset": { borderColor: "#1976d2" },
                 },
               }}
             />
             <Button
-              type="submit"
               variant="contained"
               color="primary"
               fullWidth
+              onClick={handleSignup}
               sx={{
                 mt: 2,
-                backgroundColor: '#2196f3',
-                '&:hover': {
-                  backgroundColor: '#1976d2',
+                backgroundColor: "#2196f3",
+                "&:hover": {
+                  backgroundColor: "#1976d2",
                 },
               }}
             >
@@ -111,10 +128,13 @@ const Signup = () => {
             </Button>
           </form>
         </CardContent>
-        <CardActions sx={{ justifyContent: 'center' }}>
+        <CardActions sx={{ justifyContent: "center" }}>
           <Typography variant="body2">
-            Already have an account?{' '}
-            <Link to="/login" style={{ textDecoration: 'none', color: '#1976d2' }}>
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              style={{ textDecoration: "none", color: "#1976d2" }}
+            >
               Login
             </Link>
           </Typography>

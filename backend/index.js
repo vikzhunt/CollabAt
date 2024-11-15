@@ -1,24 +1,18 @@
-const express = require('express');
-const {MongoClient} = require('mongodb');
-const app=express();
+import express from "express";
+import database from "./database.js";
+import Routes from "./routes.js";
+import cors from "cors";
+import bodyParser from "body-parser";
+const app = express();
+app.use(cors());
 
-app.get('/',(req,res)=>{
-    res.send("Welcome to CollabAt API");
-})
+app.use(bodyParser.json({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: true }));
 
-async function connectToDatabase() {
-    const uri="mongodb://localhost:27017/temp"
-    const client= new MongoClient(uri);
-    try {
-      await client.connect();
-      console.log('Connected to MongoDB');
-    } catch (error) {
-      console.error('Error connecting to MongoDB:', error);
-    }
-  }  
-connectToDatabase();
+app.use("/", Routes);
+app.use(express.json());
 
-const PORT=8080
-app.listen(PORT,()=>{
-    console.log(`Server is running on port ${PORT}`)
-})
+database();
+app.listen(8000, () => {
+  console.log("connected to backend");
+});

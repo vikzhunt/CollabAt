@@ -14,6 +14,8 @@ import Sidebar from './Components/Navbar/sidebar';
 import Navbar from './Components/Navbar/navbar';
 import Login from './Components/auth/login';
 import Signup from './Components/auth/signup';
+import HomeEventListings from './Components/home_events/hompage_events';
+
 function App() {
   return (
     <div className="App" >
@@ -28,6 +30,7 @@ function App() {
           <Route path="/team" element={<TeamGroups />} />
           <Route path="/insights" element={<InsightsAndBlog />} />
           <Route path="/eventslist" element={<EventListings />} />
+          <Route path="/home_eventslist" element={<HomeEventListings />} />
           <Route path="/discussionrooms" element={<DiscussionRooms />} />
           <Route path="/sidebar" element={<Sidebar />} />
           <Route path="/navbar" element={<Navbar />} />

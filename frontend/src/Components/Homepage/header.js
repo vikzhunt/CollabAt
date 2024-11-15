@@ -24,7 +24,7 @@ function Header({ scrollToAbout }) {
               Home
             </Link>
             <Link
-              to="/eventslist"
+              to="/home_eventslist"
               className="text-gray-700 hover:text-blue-600 border-2 border-white hover:border-blue-600 px-3 py-1 rounded-lg transition duration-200 text-lg"
             >
               Events

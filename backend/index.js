@@ -13,6 +13,9 @@ app.use("/", Routes);
 app.use(express.json());
 
 database();
-app.listen(8000, () => {
+app.get('/',(req,res)=>{
+  res.send("CollabAt is Live")
+})
+app.listen(8080, () => {
   console.log("connected to backend");
 });

@@ -38,7 +38,7 @@ export const logIn = async (req, res) => {
 
 export const getAllUsers = async (req, res) => {
   try {
-    const userList = await User.find({});
+    const userList = await User.find({ });
     return res.status(200).json({ message: "Users found", userList });
   } catch (error) {
     return res.status(500).json({ message: "not auth", status: null });

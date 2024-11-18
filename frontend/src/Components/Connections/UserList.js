@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { TextField, Box, Typography, InputAdornment } from "@mui/material";
 import { Search as SearchIcon } from "@mui/icons-material";
 import UserCard from "./UserCard";
-import { getAllUsers } from "./../../APIs/User";
+import { getAllUsers } from "./../../APIs/User.js";
 
 const UserList = () => {
   const [users, setUsers] = useState([]);
@@ -13,9 +13,7 @@ const UserList = () => {
   useEffect(() => {
     const getUsers = async () => {
       let response = await getAllUsers();
-      console.log(response.data.UserList);
-      setUsers(response.data.UserList);
-      console.log(users);
+      setUsers(response.data.userList);
     };
     getUsers();
   }, []);

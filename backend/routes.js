@@ -3,6 +3,6 @@ import { signUp, logIn, getAllUsers } from "./Controllers/user.js";
 const route = Router();
 route.post("/signUp", signUp);
 route.post("/logIn", logIn);
-route.post("/getAllUsers", getAllUsers);
+route.get("/getAllUsers", getAllUsers);
 
 export default route;

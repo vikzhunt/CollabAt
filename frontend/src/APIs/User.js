@@ -1,5 +1,5 @@
 import axios from "axios";
-const url = "http://localhost:8000";
+const url = "http://localhost:8080";
 export const signUp = async (data) => {
   try {
     let res = await axios.post(`${url}/signUp`, data);
@@ -18,9 +18,9 @@ export const logIn = async (data) => {
   }
 };
 
-export const getAllUsers = async (data) => {
+export const getAllUsers = async () => {
   try {
-    let res = await axios.post(`${url}/getAllUsers`, data);
+    let res = await axios.get(`${url}/getAllUsers`);
     return res;
   } catch (error) {
     console.log(error);

@@ -18,9 +18,19 @@ const Login = () => {
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
-    let response = await logIn({ email, password });
-    if (response.data.status === 1) navigate("/dashboard");
-    else alert(response.data.message);
+    try{
+      let response = await logIn({ email, password });
+
+      console.log(response.data.token);
+      
+      localStorage.setItem('token',response.data.token);
+      localStorage.setItem('email',email);
+      navigate("/dashboard");
+    }
+    catch(error){
+      console.log('login failed',error);
+      alert("Login Failed");
+    }
   };
 
   return (

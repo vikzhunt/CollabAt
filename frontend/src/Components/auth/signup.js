@@ -19,8 +19,16 @@ const Signup = () => {
   const navigate = useNavigate();
 
   const handleSignup = async (e) => {
-    let result = await signUp({ name, email, password });
-    console.log(result.data);
+    try{
+      let result = await signUp({ name, email, password });
+      localStorage.setItem('token',result.data.token);
+      localStorage.setItem('email',email);
+      navigate("/profile");
+    }
+    catch(error){
+      console.log('login failed',error);
+      alert("SignUp Failed");
+    }
   };
 
   return (

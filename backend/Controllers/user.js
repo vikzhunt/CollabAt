@@ -49,3 +49,22 @@ export const getAllUsers = async (req, res) => {
     return res.status(500).json({ message: "not auth", status: null });
   }
 };
+
+export const updateUser = async (req, res) => {
+  console.log(req.body)
+  const { email,degree,interest,techSkills } = req.body.profile;
+  console.log(email)
+  try {
+    const user = await User.findOne({ email });
+    if(!user){
+      return res.status(404).json({ message: "User Not Found" });
+    }
+    await User.findOneAndUpdate(
+      { email },
+      { $set: { email,degree,interest,techSkills }}
+    );
+    return res.status(200).json({ message: "User Updated"});
+  } catch (error) {
+    return res.status(500).json({ message: "User not updated"});
+  }
+};

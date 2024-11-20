@@ -1,6 +1,8 @@
 // src/components/Profile/ProfileView.js
 import React, { useState, useEffect } from 'react';
 import { Typography, Box, Button, CircularProgress } from '@mui/material';
+import { getAllUsers } from '../../APIs/User';
+// import { get } from 'mongoose';
 
 const ProfileView = () => {
   const [profile, setProfile] = useState(null);
@@ -8,17 +10,11 @@ const ProfileView = () => {
   // fetch data profile data
   useEffect(() => {
     const fetchProfile = async () => {
-      
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      const mockProfileData = {
-        name: 'Vikash Singh',
-        email: 'vikash.singh@example.com',
-        degree: 'B.Tech in Computer Science',
-        areaOfInterest: 'Web Development, Machine Learning',
-        techSkills: 'JavaScript, React, Node.js, Python',
-        resume: null
-      };
-      setProfile(mockProfileData);
+      const res = await getAllUsers();
+      const curr = localStorage.getItem('email');
+      const curruser=res.data.userList.filter((user) => user.email===curr)
+      console.log(curruser)
+      setProfile(curruser[0]);
     };
     fetchProfile();
   }, []);
@@ -55,7 +51,7 @@ const ProfileView = () => {
           <strong>Degree:</strong> {profile.degree}
         </Typography>
         <Typography variant="body1" sx={{ color: '#555', mb: 1.5 }}>
-          <strong>Area of Interest:</strong> {profile.areaOfInterest}
+          <strong>Interests:</strong> {profile.interest}
         </Typography>
         <Typography variant="body1" sx={{ color: '#555', mb: 1.5 }}>
           <strong>Technical Skills:</strong> {profile.techSkills}

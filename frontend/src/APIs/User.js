@@ -26,3 +26,13 @@ export const getAllUsers = async () => {
     console.log(error);
   }
 };
+
+export const updateUser = async (data) => {
+  try {
+    console.log(data);
+    let res = await axios.patch(`${url}/updateUser`,data);
+    return res;
+  } catch (error) {
+    console.log(error);
+  }
+};

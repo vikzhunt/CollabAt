@@ -13,7 +13,9 @@ const UserList = () => {
   useEffect(() => {
     const getUsers = async () => {
       let response = await getAllUsers();
-      setUsers(response.data.userList);
+      const curr = localStorage.getItem('email');
+      let newresponse = response.data.userList.filter((user)=> user.email !== curr)
+      setUsers(newresponse);
     };
     getUsers();
   }, []);

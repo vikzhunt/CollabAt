@@ -25,7 +25,7 @@ io.on('connection', (socket) => {
 
   // room messages
   socket.on('send_message', (data) => {
-    io.to(data.room).emit('receive_message', data); // Broadcast to specific room
+    io.to(data.room).emit('receive_message', data);
     console.log('Server received message:', data);
   });
 

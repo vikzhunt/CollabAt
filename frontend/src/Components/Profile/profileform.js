@@ -3,13 +3,15 @@ import React, { useState } from 'react';
 import { TextField, Button, Typography, Box, IconButton } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { Clear as ClearIcon } from '@mui/icons-material';
+import { updateUser } from '../../APIs/User';
 
 const ProfileForm = () => {
+  
   const [profile, setProfile] = useState({
     name: '',
     email: '',
     degree: '',
-    areaOfInterest: '',
+    interest: '',
     techSkills: '',
     resume: null,
   });
@@ -23,10 +25,17 @@ const ProfileForm = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Profile Submitted:', profile);
-    navigate('/dashboard'); // Redirect to dashboard after submission
+    try{
+      await updateUser({ profile });
+      console.log("done")
+      navigate("/dashboard");
+    }
+    catch(error){
+      console.log('login failed',error);
+      alert("Login Failed");
+    }
   };
 
   const clearResume = () => {
@@ -47,7 +56,7 @@ const ProfileForm = () => {
         value={profile.name}
         onChange={handleChange}
       />
-      <TextField
+      {/* <TextField
         label="Email"
         name="email"
         type="email"
@@ -55,7 +64,7 @@ const ProfileForm = () => {
         margin="normal"
         value={profile.email}
         onChange={handleChange}
-      />
+      /> */}
       <TextField
         label="Degree"
         name="degree"
@@ -66,10 +75,10 @@ const ProfileForm = () => {
       />
       <TextField
         label="Area of Interest"
-        name="areaOfInterest"
+        name="interest"
         fullWidth
         margin="normal"
-        value={profile.areaOfInterest}
+        value={profile.interest}
         onChange={handleChange}
       />
       <TextField

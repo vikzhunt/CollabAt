@@ -2,12 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import { Typography, Box, Button, CircularProgress } from '@mui/material';
 import { getAllUsers } from '../../APIs/User';
-// import { get } from 'mongoose';
 
 const ProfileView = () => {
   const [profile, setProfile] = useState(null);
 
-  // fetch data profile data
   useEffect(() => {
     const fetchProfile = async () => {
       const res = await getAllUsers();

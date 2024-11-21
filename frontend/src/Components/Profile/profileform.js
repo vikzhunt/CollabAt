@@ -56,7 +56,7 @@ const ProfileForm = () => {
         value={profile.name}
         onChange={handleChange}
       />
-      {/* <TextField
+      <TextField
         label="Email"
         name="email"
         type="email"
@@ -64,7 +64,7 @@ const ProfileForm = () => {
         margin="normal"
         value={profile.email}
         onChange={handleChange}
-      /> */}
+      />
       <TextField
         label="Degree"
         name="degree"

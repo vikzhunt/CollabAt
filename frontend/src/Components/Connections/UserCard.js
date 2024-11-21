@@ -23,16 +23,10 @@ const UserCard = ({ user, onConnect, isConnected }) => {
             <span className="font-semibold">Degree:</span> {user.degree}
           </p>
           <p className="text-sm text-gray-600">
-            <span className="font-semibold">Area of Interest:</span> {user.areaOfInterest}
-          </p>
-          <p className="text-sm text-gray-600">
-            <span className="font-semibold">Skills:</span> {user.skills}
+            <span className="font-semibold">Interests:</span> {user.interest}
           </p>
           <p className="text-sm text-gray-600">
             <span className="font-semibold">Technical Skills:</span> {user.techSkills}
-          </p>
-          <p className="text-sm text-gray-600">
-            <span className="font-semibold">Interests:</span> {user.interests}
           </p>
 
           {/* Resume Link */}

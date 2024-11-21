@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
-const URL =
-  "mongodb+srv://thevikassingh9889:3gG6WoWajaFIgmLC@cluster.si93j.mongodb.net/?retryWrites=true&w=majority&appName=Cluster";
+import dotenv from 'dotenv';
+dotenv.config();
+const URL = process.env.MONGO_URI;
 export async function db() {
   try {
     await mongoose.connect(URL);

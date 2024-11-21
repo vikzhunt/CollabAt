@@ -15,7 +15,7 @@ const ChatRoom = () => {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const newSocket = io("http://localhost:8080"); // Initialize socket
+    const newSocket = io("http://localhost:8080"); 
     setSocket(newSocket);
 
     newSocket.on('message', (newMessage) => {
@@ -31,7 +31,7 @@ const ChatRoom = () => {
     });
 
     return () => {
-      newSocket.disconnect(); // Cleanup on unmount
+      newSocket.disconnect(); 
     };
   }, []);
 

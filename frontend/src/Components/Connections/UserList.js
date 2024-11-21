@@ -26,12 +26,11 @@ const UserList = () => {
         (user) =>
           user.name.toLowerCase().includes(search.toLowerCase()) ||
           user.degree.toLowerCase().includes(search.toLowerCase()) ||
-          user.interests
+          user.interest
             .join(", ")
             .toLowerCase()
             .includes(search.toLowerCase()) ||
-          user.skills.toLowerCase().includes(search.toLowerCase()) ||
-          user.techSkills.toLowerCase().includes(search.toLowerCase())
+          user.techSkills.join(", ").toLowerCase().includes(search.toLowerCase())
       )
     );
   }, [search, users]);

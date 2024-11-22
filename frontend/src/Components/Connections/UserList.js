@@ -83,6 +83,7 @@ const UserList = () => {
           ...prevConnections,
           [userId]: { status: "pending", pending: "pending" },
         }));
+        setPendingRequests((prevRequests) => [...prevRequests, { userId }]);
       } else {
         console.error("Failed to send connection request:", response.message);
       }
@@ -102,7 +103,7 @@ const UserList = () => {
           ...prevConnections,
           [userId]: { status: "connected", pending: "not pending" },
         }));
-        setPendingRequests((prevRequests) => prevRequests.filter((id) => id !== userId));
+        setPendingRequests((prevRequests) => prevRequests.filter((req) => req.userId !== userId));
       } else {
         console.log("Failed to accept connection:", response.message);
       }

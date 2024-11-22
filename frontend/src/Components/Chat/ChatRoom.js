@@ -2,13 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import { Typography, TextField, Button, Paper, Avatar, List, ListItem, ListItemAvatar, ListItemText } from '@mui/material';
+import { getConnections } from '../../APIs/User';
 
 const ChatRoom = () => {
-  const [connections] = useState([
-    { id: 1, name: 'Alice Johnson' },
-    { id: 2, name: 'Bob Smith' },
-    { id: 3, name: 'Charlie Brown' },
-  ]);
+  const [connections, setConnections] = useState([]);
   const [selectedConnection, setSelectedConnection] = useState(null);
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
@@ -35,6 +32,20 @@ const ChatRoom = () => {
     };
   }, []);
 
+  useEffect(() => {
+  const fetchUsers = async () => {
+    try {
+      const data = await getConnections();
+      console.log('Fetched connections:', data); // Check the structure
+      setConnections(data);
+    } catch (error) {
+      console.error('Error fetching connections:', error);
+      alert('Connections Retrieval Failed');
+    }
+  };
+  fetchUsers();
+}, []);
+
   const handleSendMessage = () => {
     if (message.trim() && selectedConnection) {
       const newMessage = { username: selectedConnection.name, text: message, time: new Date().toLocaleTimeString() };
@@ -46,7 +57,7 @@ const ChatRoom = () => {
 
   const handleSelectConnection = (connection) => {
     setSelectedConnection(connection);
-    setMessages([]); // Clear messages when switching to a new chat
+    setMessages([]); 
   };
 
   return (
@@ -56,20 +67,24 @@ const ChatRoom = () => {
         <div className="w-1/3 bg-slate-100 shadow-lg p-4 overflow-y-auto">
           <Typography variant="h5" className="font-bold text-sky-800 mb-4 p-4">Connections</Typography>
           <List>
-            {connections.map((connection) => (
-              <ListItem
-                key={connection.id}
-                button
-                selected={selectedConnection && selectedConnection.id === connection.id}
-                onClick={() => handleSelectConnection(connection)}
-                className=" border mb-2 hover:bg-yellow-50/20 hover:border-yellow-500 rounded-md transition duration-200"
-              >
-                <ListItemAvatar>
-                  <Avatar className="bg-blue-500 text-white">{connection.name[0]}</Avatar>
-                </ListItemAvatar>
-                <ListItemText primary={connection.name} />
-              </ListItem>
-            ))}
+            {connections && connections.length > 0 ? (
+              connections.map((connection) => (
+                <ListItem
+                  key={connection.id}
+                  button
+                  selected={selectedConnection && selectedConnection.id === connection.id}
+                  onClick={() => handleSelectConnection(connection)}
+                  className="border mb-2 hover:bg-yellow-50/20 hover:border-yellow-500 rounded-md transition duration-200"
+                >
+                  <ListItemAvatar>
+                    <Avatar className="bg-blue-500 text-white">{connection.name[0]}</Avatar>
+                  </ListItemAvatar>
+                  <ListItemText primary={connection.name} />
+                </ListItem>
+              ))
+            ) : (
+              <Typography variant="body2" className="text-gray-500">No connections available.</Typography>
+            )}
           </List>
         </div>
 

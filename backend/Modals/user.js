@@ -25,6 +25,20 @@ const user = mongoose.Schema({
     type: [String],
     default: [],
   },
+  connectionRequests: [
+    {
+      from: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+      status: { type: String, enum: ['pending', 'accepted', 'rejected'], default: 'pending' },
+      message: { type: String }, // Optional message from the requester
+      dateRequested: { type: Date, default: Date.now },
+    },
+  ],
+  connections: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
   resume: {
     type: String,
     default: "This is a resume link",

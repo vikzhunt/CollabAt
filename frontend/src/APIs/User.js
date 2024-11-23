@@ -49,7 +49,7 @@ export const getConnections = async (email) => {
 
 export const updateConnections = async (data) => {
   try {
-    console.log("Data sent to API:", data); // Debugging
+    console.log("Data sent to API:", data); 
     let res = await axios.patch(`${url}/updateConnections`, data);
     return res;
   } catch (error) {
@@ -57,22 +57,32 @@ export const updateConnections = async (data) => {
   }
 };
 
-export const acceptConnection = async ({ userId, connectionRequestId }) => {
+export const acceptConnectionRequest = async (data) => {
   try {
-    const response = await axios.patch(`${url}/acceptConnection`, { userId, connectionRequestId });
-    return response.data; // This should return success message
+    const response = await axios.post(`${url}/acceptConnectionRequest`, data);
+    return response.data; 
   } catch (error) {
     console.error("Error accepting connection:", error);
-    throw error; // Ensure to handle errors in the component
+    throw error; 
   }
 };
 
 export const sendConnectionRequest = async (data) => {
   try {
     const response = await axios.post(`${url}/sendConnectionRequest`, data);
-    return response.data; // Return success message
+    return response.data; 
   } catch (error) {
     console.error("Error sending connection request:", error);
-    throw error; // Propagate error to the component
+    throw error;
+  }
+};
+
+export const getPendingRequests = async (userId) => {
+  try {
+    const response = await axios.get(`${url}/pendingRequests/${userId}`, userId);
+    return response.data; 
+  } catch (error) {
+    console.error("Error sending connection request:", error);
+    throw error;
   }
 };

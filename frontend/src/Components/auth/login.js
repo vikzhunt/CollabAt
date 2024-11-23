@@ -16,14 +16,16 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-
+  
   const handleLogin = async (e) => {
+    e.preventDefault();
     try{
       let response = await logIn({ email, password });
 
       console.log(response.data.token);
       
       localStorage.setItem('token',response.data.token);
+      localStorage.setItem('crUserId',response.data.user._id);
       localStorage.setItem('email',email);
       navigate("/dashboard");
     }

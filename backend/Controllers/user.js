@@ -1,6 +1,7 @@
 import User from "./../Modals/user.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import mongoose from "mongoose";
 
 export const signUp = async (req, res) => {
   try {
@@ -35,6 +36,7 @@ export const logIn = async (req, res) => {
     const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1h' });
     return res.status(200).json({ message: "Login Successful", user, token });
   } catch (error) {
+    console.error("Error during login: ",error);
     return res.status(500).json({ message: "Error during login" });
   }
 };
@@ -56,7 +58,6 @@ export const updateUser = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Only allow updating non-unique fields like degree, interest, and techSkills
     await User.findOneAndUpdate(
       { email },
       { $set: { degree, interest, techSkills } }
@@ -105,7 +106,6 @@ export const updateConnections = async (req, res) => {
       return res.status(404).json({ message: "User or target user not found" });
     }
 
-    // Prevent duplicate pending requests
     const existingRequest = user.connectionRequests.find(request => request.from.toString() === connectTo);
     if (existingRequest && existingRequest.status === 'pending') {
       return res.status(400).json({ message: "Connection request already sent" });
@@ -122,97 +122,90 @@ export const updateConnections = async (req, res) => {
   }
 };
 
-export const acceptConnection = async (req, res) => {
-  const { userId, connectionRequestId } = req.body;
-
-  if (!userId || !connectionRequestId) {
-    return res.status(400).json({ message: "User ID and connection request ID are required" });
-  }
-
+export const acceptConnectionRequest = async (req, res) => {
+  const { userId, requesterId } = req.body;
   try {
     const user = await User.findById(userId);
-    const request = user.connectionRequests.id(connectionRequestId);
+    const requester = await User.findById(requesterId);
 
-    if (!request || request.status !== 'pending') {
-      return res.status(400).json({ message: "Invalid or expired request" });
+    if (!user || !requester) {
+      return res.status(404).json({ message: "User(s) not found" });
     }
-
-    // Accept the connection
-    request.status = 'accepted';
-    await user.save();
-
-    // Add both users to each other's connections
-    user.connections.push(request.from);
-    await user.save();
-
-    const fromUser = await User.findById(request.from);
-    fromUser.connections.push(userId);
-    await fromUser.save();
-
-    return res.status(200).json({ message: "Connection accepted" });
-  } catch (error) {
-    console.error("Error accepting connection:", error);
-    return res.status(500).json({ message: "Failed to accept connection", error: error.message });
-  }
-};
-
-export const sendConnectionRequest = async (req, res) => {
-  console.log(req.body);
-
-  const { currEmail, userId } = req.body;
-
-  // Validate request body
-  if (!currEmail || !userId) {
-    return res.status(400).json({
-      message: "Both email and userId are required.",
-    });
-  }
-
-  try {
-    // Find the requesting user and the target user
-    const user1 = await User.findOne({ email: currEmail }); // Requesting user
-    const connectToUser = await User.findById(userId); // Target user
-
-    if (!user1 || !connectToUser) {
-      return res.status(404).json({
-        message: "Requesting user or target user not found.",
-      });
-    }
-
-    // Ensure target user has a `connectionRequests` array
-    if (!Array.isArray(connectToUser.connectionRequests)) {
-      connectToUser.connectionRequests = [];
-    }
-
-    // Check if there's already a pending request
-    const existingRequest = connectToUser.connectionRequests.find(
-      request => request.from.toString() === user1._id.toString()
+    const requestIndex = user.connectionRequests.findIndex(
+      (req) => req.from.toString() === requesterId && req.status === "pending"
     );
 
-    if (existingRequest && existingRequest.status === "pending") {
-      return res.status(400).json({
-        message: "Connection request already sent.",
-      });
+    if (requestIndex === -1) {
+      return res.status(400).json({ message: "No pending request found" });
     }
 
-    // Create and add the new connection request
-    const newRequest = {
-      from: user1._id,
-      status: "pending",
-    };
+    user.connectionRequests[requestIndex].status = "accepted";
+    user.connections.push(requesterId);
+    requester.connections.push(userId);
 
-    connectToUser.connectionRequests.push(newRequest);
-    await connectToUser.save();
-// console.log("*")
-    return res.status(200).json({
-      message: "Connection request sent successfully.",
-    });
+    await user.save();
+    await requester.save();
+
+    return res.status(200).json({ message: "Connection accepted successfully" });
   } catch (error) {
-    // console.log("*")
-    console.error("Error sending connection request:", error);
-    return res.status(500).json({
-      message: "Failed to send connection request.",
-      error: error.message,
-    });
+    return res.status(500).json({ message: "Error accepting connection", error });
   }
 };
+
+
+export const sendConnectionRequest = async (req, res) => {
+  const { fromId, toId, message } = req.body;
+
+  try {
+    if (!mongoose.Types.ObjectId.isValid(fromId) || !mongoose.Types.ObjectId.isValid(toId)) {
+      return res.status(400).json({ message: "Invalid user IDs provided" });
+    }
+    const sender = await User.findById(fromId);
+    const receiver = await User.findById(toId);
+    // console.log(sender);
+    // console.log(receiver);
+    if (!sender || !receiver) {
+      return res.status(404).json({ message: "User(s) not found" });
+    }
+    if (!Array.isArray(receiver.connectionRequests)) {
+      receiver.connectionRequests = [];
+    }
+    const existingRequest = receiver.connectionRequests.find(
+      (req) => {
+        if(!req || !req.from) return false; 
+        return req.from.toString() === fromId && req.status === "pending"
+    });
+    if (existingRequest) {
+      return res.status(400).json({ message: "Request already sent" });
+    }
+    receiver.connectionRequests.push({ from: fromId, message });
+    sender.connectionRequests.push({ to: toId });
+    await receiver.save();
+    await sender.save();
+
+    return res.status(200).json({ message: "Request sent successfully" });
+  } catch (error) {
+    console.error("Error in sendConnectionRequest:", error);
+    return res.status(500).json({ message: "Error sending request", error });
+  }
+};
+
+
+export const getPendingRequests = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const user = await User.findById(userId).populate("connectionRequests.from", "name email");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const pendingRequests = user.connectionRequests.filter((req) => req.status === "pending");
+
+    return res.status(200).json({ pendingRequests });
+  } catch (error) {
+    return res.status(500).json({ message: "Error fetching requests", error });
+  }
+};
+

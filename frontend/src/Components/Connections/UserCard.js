@@ -2,7 +2,10 @@ import React from "react";
 import { PersonAdd as PersonAddIcon, CheckCircle as CheckCircleIcon, Done as DoneIcon } from "@mui/icons-material";
 import { Box, Typography, Button } from "@mui/material"; // Import MUI components for styling
 
-const UserCard = ({ user, onConnect, onAccept, isConnected, isPending, showAcceptButton }) => {
+const UserCard = ({ user, onConnect, onAccept, isConnected, isRequested, isPending, showAcceptButton }) => {
+  // // console.log(user);
+  // // console.log(isRequested);
+  // console.log(showAcceptButton);
   return (
     <Box className="w-full bg-white rounded-lg border hover:bg-yellow-50/20 hover:border-yellow-500 shadow-lg p-6 mb-6">
       <div className="flex items-start space-x-6">
@@ -27,7 +30,15 @@ const UserCard = ({ user, onConnect, onAccept, isConnected, isPending, showAccep
         {/* Action Buttons */}
         <div className="flex items-center space-x-4">
           {/* Conditional rendering for buttons based on connection status */}
-          {(!isConnected && !isPending) ? (
+          {  (isRequested) ? (
+              <Button
+                className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-full"
+                aria-label="Requested"
+              >
+                <PersonAddIcon />
+                <span>Requested</span>
+              </Button>
+            ) : (!isConnected && !isPending) ? (
             <Button
               onClick={onConnect}
               className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-full"
@@ -36,7 +47,7 @@ const UserCard = ({ user, onConnect, onAccept, isConnected, isPending, showAccep
               <PersonAddIcon />
               <span>Connect</span>
             </Button>
-          ) : isPending && showAcceptButton ? ( // Only show accept button if this is the recipient
+            ) : (isPending) && showAcceptButton ? ( // Only show accept button if this is the recipient
             <Box>
               <Button
                 onClick={onAccept}
@@ -54,14 +65,21 @@ const UserCard = ({ user, onConnect, onAccept, isConnected, isPending, showAccep
                 <span>Reject</span>
               </Button>
             </Box>
+          ) : (isConnected) ? (
+            <Button
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-full"
+              aria-label="Connected"
+            >
+              <PersonAddIcon />
+              <span>Connected</span>
+            </Button>
           ) : (
             <Button
               className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-full"
-              disabled
-              aria-label="Connected"
+              aria-label="Request recieved"
             >
               <CheckCircleIcon />
-              <span>Connected</span>
+              <span>Request Pending</span>
             </Button>
           )}
         </div>

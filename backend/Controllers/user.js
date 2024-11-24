@@ -70,11 +70,17 @@ export const updateUser = async (req, res) => {
 };
 
 export const getConnections = async (req, res) => {
-  const { email } = req.query;
+  const { userId } = req.params;
+
+  if (!userId) {
+    return res.status(400).json({ message: "User ID is required" });
+  }
+
   try {
-    const user = await User.findOne({ email })
-      .populate('connectionRequests.from', 'name email')
-      .populate('connections', 'name email'); // Populate connections as well
+    const user = await User.findById(userId).populate(
+      "connections",
+      "name email degree techSkills interest"
+    );
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -83,7 +89,6 @@ export const getConnections = async (req, res) => {
     return res.status(200).json({
       message: "Connections retrieved successfully",
       connections: user.connections,
-      connectionRequests: user.connectionRequests,
     });
   } catch (error) {
     console.error("Error fetching connections:", error);
@@ -124,19 +129,23 @@ export const updateConnections = async (req, res) => {
 
 export const acceptConnectionRequest = async (req, res) => {
   const { userId, requesterId } = req.body;
+  // console.log(userId);
+  // console.log(requesterId);
   try {
     const user = await User.findById(userId);
     const requester = await User.findById(requesterId);
-
+    console.log(user);
+    console.log(requester);
     if (!user || !requester) {
       return res.status(404).json({ message: "User(s) not found" });
     }
     const requestIndex = user.connectionRequests.findIndex(
-      (req) => req.from.toString() === requesterId && req.status === "pending"
+      (req) => req.from == requesterId.toString() && req.status === "pending"
     );
-
+    console.log(requestIndex);
+    console.log("hey");
     if (requestIndex === -1) {
-      return res.status(400).json({ message: "No pending request found" });
+      return res.status(404).json({ message: "No pending request found" });
     }
 
     user.connectionRequests[requestIndex].status = "accepted";
@@ -193,10 +202,12 @@ export const sendConnectionRequest = async (req, res) => {
 
 export const getPendingRequests = async (req, res) => {
   const { userId } = req.params;
-
+  // console.log("ehll");
   try {
-    const user = await User.findById(userId).populate("connectionRequests.from", "name email");
-
+    // const user = await User.findById(userId).populate("connectionRequests.from", "name email");
+    const user = await User.findById(userId);
+    // console.log(user);
+    // console.log(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }

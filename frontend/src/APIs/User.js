@@ -1,5 +1,6 @@
 import axios from "axios";
 const url = "http://localhost:8080";
+
 export const signUp = async (data) => {
   try {
     let res = await axios.post(`${url}/signUp`, data);
@@ -37,9 +38,9 @@ export const updateUser = async (data) => {
   }
 };
 
-export const getConnections = async (email) => {
+export const getConnections = async (userId) => {
   try {
-    let res = await axios.get(`${url}/getConnections?email=${email}`);
+    let res = await axios.get(`${url}/getConnections`,userId);
     return res;
   } catch (error) {
     console.error("Error fetching connections:", error);
@@ -80,6 +81,7 @@ export const sendConnectionRequest = async (data) => {
 export const getPendingRequests = async (userId) => {
   try {
     const response = await axios.get(`${url}/pendingRequests/${userId}`, userId);
+    // console.log("hey");
     return response.data; 
   } catch (error) {
     console.error("Error sending connection request:", error);

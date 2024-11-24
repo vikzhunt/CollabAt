@@ -9,6 +9,6 @@ route.get("/getConnections",getConnections);
 route.patch("/updateConnections",updateConnections);
 route.post("/acceptConnectionRequest",acceptConnectionRequest);
 route.post("/sendConnectionRequest", sendConnectionRequest);
-route.get("/:userId/pendingRequests", getPendingRequests);
+route.get("/pendingRequests/:userId", getPendingRequests);
 
 export default route;

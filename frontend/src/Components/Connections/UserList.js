@@ -12,71 +12,146 @@ const UserList = () => {
   const [pendingRequests, setPendingRequests] = useState([]);
   const [view, setView] = useState("connect"); // Updated to manage new views
 
-  // Fetch all users
   useEffect(() => {
-    const getUsers = async () => {
-      let response = await getAllUsers();
-      const curr = localStorage.getItem("email");
-      let newresponse = response.data.userList.filter((user) => user.email !== curr);
-      setUsers(newresponse);
-
-      const initialConnections = {};
-      newresponse.forEach((user) => {
-        initialConnections[user._id] = { status: "not connected" };
-      });
-      setConnections(initialConnections);
-    };
-    getUsers();
-  }, []);
-
-  // Fetch pending requests
-  useEffect(() => {
-    const fetchPendingRequests = async () => {
+    const fetchData = async () => {
+      const currEmail = localStorage.getItem("email");
       const currUserId = localStorage.getItem("crUserId");
-      if (currUserId) {
-        try {
-          const response = await getPendingRequests(currUserId); 
+
+      try {
+        // Fetch users
+        const userResponse = await getAllUsers();
+        const newUsers = userResponse.data.userList.filter((user) => user.email !== currEmail);
+        setUsers(newUsers);
+
+        // Initialize connections
+        const initialConnections = {};
+        newUsers.forEach((user) => {
+          initialConnections[user._id] = { status: "not connected" };
+        });
+
+        // const currentUserResponse = await getConnections(currUserId); // Make an API call
+        // const cr = currentUserResponse.data;
+        // console.log("Current User with Connections:", cr);
+
+        // // Update connections from the current user
+        // if (cr.connections) {
+        //   cr.connections.forEach((connection) => {
+        //     initialConnections[connection._id] = { status: "connected" };
+        //   });
+        // }
+        setConnections(initialConnections);
+  
+        const response = await getPendingRequests(currUserId); 
+          // console.log("hello");
           console.log("Pending requests response:", response); // Log the response
-          const { pendingRequests } = response.data;
+          const { pendingRequests } = response;
           if (!pendingRequests || pendingRequests.length === 0) {
             console.log("No pending requests found.");
           }
-          setPendingRequests(pendingRequests); // Set state with the correct data
-  
+          setPendingRequests(pendingRequests);
           const updatedConnections = {};
           pendingRequests.forEach((req) => {
-            updatedConnections[req.from._id] = { status: "pending" };
+            if(req.from){
+              updatedConnections[req.from] = { status: "pending" };
+            }
+            if(req.to){
+              updatedConnections[req.to] = { status : "requested" };
+            }
           });
+          
           setConnections((prev) => ({ ...prev, ...updatedConnections }));
-  
-        } catch (error) {
-          console.error("Error fetching pending requests:", error);
-        }
+          console.log(updatedConnections);
+
+      } catch (error) {
+        console.error("Error fetching data:", error);
       }
     };
-    fetchPendingRequests();
-  }, []);
   
+    fetchData();
+  }, []); 
+
+  useEffect(() => {
+    console.log("Updated connections: ", connections);
+  }, [connections]);
+  
+  // Fetch all users
+  // useEffect(() => {
+  //   const getUsers = async () => {
+  //     let response = await getAllUsers();
+  //     const curr = localStorage.getItem("email");
+  //     let newresponse = response.data.userList.filter((user) => user.email !== curr);
+  //     setUsers(newresponse);
+
+  //     const initialConnections = {};
+  //     newresponse.forEach((user) => {
+  //       if (!initialConnections[user._id] || initialConnections[user._id].status !== "requested") {
+  //         initialConnections[user._id] = { status: "not connected" };
+  //       }
+  //     });
+  //     setConnections(initialConnections);
+  //   };
+  //   getUsers();
+  // }, []);
+
+  // useEffect(() => {
+  //   const fetchPendingRequests = async () => {
+  //     const currUserId = localStorage.getItem("crUserId");
+  //     if (currUserId) {
+  //       try {
+  //         const response = await getPendingRequests(currUserId); 
+  //         // console.log("hello");
+  //         console.log("Pending requests response:", response); // Log the response
+  //         const { pendingRequests } = response;
+  //         if (!pendingRequests || pendingRequests.length === 0) {
+  //           console.log("No pending requests found.");
+  //         }
+  //         setPendingRequests(pendingRequests);
+  //         const updatedConnections = {};
+  //         pendingRequests.forEach((req) => {
+  //           if(req.from){
+  //             updatedConnections[req.from] = { status: "pending" };
+  //           }
+  //           if(req.to){
+  //             updatedConnections[req.to] = { status : "requested" };
+  //           }
+  //         });
+          
+  //         setConnections((prev) => ({ ...prev, ...updatedConnections }));
+  //         console.log(updatedConnections);
+  //       } catch (error) {
+  //         console.error("Error fetching pending requests:", error);
+  //       }
+  //     }
+  //   };
+  //   fetchPendingRequests();
+  // }, []);
 
   // Filter users based on search input
   useEffect(() => {
     if (search === "") {
-      setFilteredUsers(users);
+      const filtered = users.filter(
+        (user) => connections[user._id]?.status !== "connected"
+      );
+      setFilteredUsers(filtered);
+      // setFilteredUsers(users);
     } else {
       const filtered = users.filter(
         (user) =>
+          (
           user.name.toLowerCase().includes(search.toLowerCase()) ||
           user.degree.toLowerCase().includes(search.toLowerCase()) ||
-          user.interests?.some((interest) => interest.toLowerCase().includes(search.toLowerCase())) || // Added optional chaining
-          user.skills?.some((skill) => skill.toLowerCase().includes(search.toLowerCase())) // Added optional chaining
+          user.interests?.some((interest) => interest.toLowerCase().includes(search.toLowerCase())) || 
+          user.skills?.some((skill) => skill.toLowerCase().includes(search.toLowerCase()))
+          ) &&
+          connections[user._id]?.status !== "connected"
       );
       setFilteredUsers(filtered);
     }
-  }, [search, users]);
+  }, [search, users, connections]);
 
   // Handle sending connection requests
   const handleConnect = async (userId) => {
-    const currUserId = localStorage.getItem("crUserId"); // Fixed: consistent variable naming
+    const currUserId = localStorage.getItem("crUserId");
     if (!currUserId) return;
     try {
       const res = await sendConnectionRequest({ fromId: currUserId, toId: userId });
@@ -94,17 +169,21 @@ const UserList = () => {
   // Handle accepting connection requests
   const handleAccept = async (connectionRequestId) => {
     const currUserId = localStorage.getItem("crUserId");
+    // console.log(connectionRequestId.from);
+    // console.log("hi");
     if (!currUserId || !connectionRequestId) return;
+    console.log(connectionRequestId.from);
     try {
-      const res = await acceptConnectionRequest({ userId: currUserId, requesterId: connectionRequestId.from._id }); 
+      const res = await acceptConnectionRequest({ userId: currUserId, requesterId: connectionRequestId.from }); 
+      console.log("hy");
       if(res.status === 200){
         setConnections((prev) => ({
           ...prev,
-          [connectionRequestId.from._id]: { status: "connected" },
+          [connectionRequestId.from]: { status: "connected" },
         }));
-        setPendingRequests((prev) => prev.filter((req) => req.from._id !== connectionRequestId.from._id));
+        setPendingRequests((prev) => prev.filter((req) => req.from !== connectionRequestId.from));
       } else {
-        console.error("Failed to accept request: ", res.data.message);
+        console.error("Failed to accept request: ", res.data);
       }
     } catch (error) {
       console.log("Error accepting connection:", error);
@@ -166,6 +245,7 @@ const UserList = () => {
                   key={user._id}
                   user={user}
                   onConnect={() => handleConnect(user._id)}
+                  isRequested={connections[user._id]?.status === "requested"}
                   isConnected={connections[user._id]?.status === "connected"}
                   isPending={connections[user._id]?.status === "pending"}
                 />
@@ -179,31 +259,54 @@ const UserList = () => {
         </>
       ) : view === "requests" ? (
         <div className="space-y-6">
-          {pendingRequests.map((request) => {
-            const user = users.find((u) => u._id === request.from._id);
+          {pendingRequests.length > 0 ? (
+            pendingRequests.map((request) => {
+            console.log(request);
+            const user = users.find((u) => u._id.toString() === request.from);
+            console.log(user);
             if (!user) return null;
-            const isCurrentUserReceiver = localStorage.getItem("crUserId") === request.to._id;
+            const isCurrentUserReceiver = localStorage.getItem("crUserId") !== request.from;
+      
             return (
               <UserCard
                 key={user._id}
                 user={user}
-                onAccept={isCurrentUserReceiver ? () => handleAccept(request) : null}
+                onAccept={() => handleAccept(request)}
                 isConnected={connections[user._id]?.status === "connected"}
+                isRequested={connections[user._id]?.status === "requested"}
                 isPending={connections[user._id]?.status === "pending"}
                 showAcceptButton={isCurrentUserReceiver}
               />
             );
-          })}
+          })):(
+            <Typography variant="body1" className="text-center text-gray-500">
+                No pending requests found.
+            </Typography>
+          )}
         </div>
       ) : (
         <div className="space-y-6">
-          {users.filter((user) => connections[user._id]?.status === "connected").map((user) => (
-            <UserCard
-              key={user._id}
-              user={user}
-              isConnected={connections[user._id]?.status === "connected"}
-            />
-          ))}
+          {(() => {
+            const currentUserId = localStorage.getItem("crUserId");
+            // console.log("Current User ID:", currentUserId);
+            const connectedUsers = users.filter((user) => {
+              const isConnected = user.connections?.includes(currentUserId);
+              return isConnected;
+            });
+            if (connectedUsers.length > 0) {
+              console.log("Connected Users:", connectedUsers);
+              return connectedUsers.map((user) => (
+                <UserCard key={user._id} user={user} isConnected={true} />
+              ));
+            } else {
+              console.log("No connected users found.");
+              return (
+                <Typography variant="body1" className="text-center text-gray-500">
+                  No connections found.
+                </Typography>
+              );
+            }
+          })()}
         </div>
       )}
     </Box>

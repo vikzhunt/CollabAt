@@ -31,7 +31,7 @@ export const getAllUsers = async () => {
 export const updateUser = async (data) => {
   try {
     console.log(data);
-    let res = await axios.patch(`${url}/updateUser`,data);
+    let res = await axios.patch(`${url}/updateUser`, data);
     return res;
   } catch (error) {
     console.log(error);
@@ -40,7 +40,7 @@ export const updateUser = async (data) => {
 
 export const getConnections = async (userId) => {
   try {
-    let res = await axios.get(`${url}/getConnections`,userId);
+    let res = await axios.get(`${url}/getConnections`, userId);
     return res;
   } catch (error) {
     console.error("Error fetching connections:", error);
@@ -50,17 +50,27 @@ export const getConnections = async (userId) => {
 export const acceptConnectionRequest = async (data) => {
   try {
     const response = await axios.post(`${url}/acceptConnectionRequest`, data);
-    return response.data; 
+    return response.data;
   } catch (error) {
     console.error("Error accepting connection:", error);
-    throw error; 
+    throw error;
   }
 };
 
 export const sendConnectionRequest = async (data) => {
   try {
     const response = await axios.post(`${url}/sendConnectionRequest`, data);
-    return response.data; 
+    return response.data;
+  } catch (error) {
+    console.error("Error sending connection request:", error);
+    throw error;
+  }
+};
+
+export const removeConnectionRequest = async (data) => {
+  try {
+    const response = await axios.post(`${url}/removeConnectionRequest`, data);
+    return response.data;
   } catch (error) {
     console.error("Error sending connection request:", error);
     throw error;
@@ -69,9 +79,12 @@ export const sendConnectionRequest = async (data) => {
 
 export const getPendingRequests = async (userId) => {
   try {
-    const response = await axios.get(`${url}/pendingRequests/${userId}`, userId);
+    const response = await axios.get(
+      `${url}/pendingRequests/${userId}`,
+      userId
+    );
     // console.log("hey");
-    return response.data; 
+    return response.data;
   } catch (error) {
     console.error("Error sending connection request:", error);
     throw error;

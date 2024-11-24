@@ -38,7 +38,9 @@ const Signup = () => {
         justifyContent: "center",
         alignItems: "center",
         minHeight: "100vh",
-        background: "linear-gradient(45deg, #2196f3 0%, #1976d2 100%)",
+        backgroundImage: `url('../bg.png')`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
       }}
     >
       <Card

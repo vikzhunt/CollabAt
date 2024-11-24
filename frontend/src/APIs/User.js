@@ -47,17 +47,6 @@ export const getConnections = async (userId) => {
   }
 };
 
-
-export const updateConnections = async (data) => {
-  try {
-    console.log("Data sent to API:", data); 
-    let res = await axios.patch(`${url}/updateConnections`, data);
-    return res;
-  } catch (error) {
-    console.error("Error in updateConnections API:", error);
-  }
-};
-
 export const acceptConnectionRequest = async (data) => {
   try {
     const response = await axios.post(`${url}/acceptConnectionRequest`, data);

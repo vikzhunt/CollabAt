@@ -30,7 +30,7 @@ const ProfileForm = () => {
     try{
       await updateUser({ profile });
       console.log("done")
-      navigate("/dashboard");
+      navigate("/login");
     }
     catch(error){
       console.log('login failed',error);

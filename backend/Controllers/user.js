@@ -96,37 +96,6 @@ export const getConnections = async (req, res) => {
   }
 };
 
-export const updateConnections = async (req, res) => {
-  const { email, connectTo } = req.body;
-
-  if (!email || !connectTo) {
-    return res.status(400).json({ message: "Email and connectTo are required" });
-  }
-
-  try {
-    const user = await User.findOne({ email });
-    const connectToUser = await User.findById(connectTo);
-
-    if (!user || !connectToUser) {
-      return res.status(404).json({ message: "User or target user not found" });
-    }
-
-    const existingRequest = user.connectionRequests.find(request => request.from.toString() === connectTo);
-    if (existingRequest && existingRequest.status === 'pending') {
-      return res.status(400).json({ message: "Connection request already sent" });
-    }
-
-    const newRequest = { from: user._id, status: 'pending' };
-    connectToUser.connectionRequests.push(newRequest);
-    await connectToUser.save();
-
-    return res.status(200).json({ message: "Connection request sent" });
-  } catch (error) {
-    console.error("Error sending connection request:", error);
-    return res.status(500).json({ message: "Failed to send connection request", error: error.message });
-  }
-};
-
 export const acceptConnectionRequest = async (req, res) => {
   const { userId, requesterId } = req.body;
   // console.log(userId);

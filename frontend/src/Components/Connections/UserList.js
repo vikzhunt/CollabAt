@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { TextField, Box, Typography, InputAdornment, Divider } from "@mui/material";
 import { Search as SearchIcon } from "@mui/icons-material";
 import UserCard from "./UserCard";
-import { getAllUsers, sendConnectionRequest, acceptConnectionRequest, getPendingRequests } from "./../../APIs/User.js"; // Ensure correct imports
+import { getAllUsers, sendConnectionRequest, acceptConnectionRequest, getPendingRequests } from "./../../APIs/User.js";  
 
 const UserList = () => {
   const [users, setUsers] = useState([]);
@@ -10,7 +10,7 @@ const UserList = () => {
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [connections, setConnections] = useState({});
   const [pendingRequests, setPendingRequests] = useState([]);
-  const [view, setView] = useState("connect"); // Updated to manage new views
+  const [view, setView] = useState("connect"); 
 
   useEffect(() => {
     const fetchData = async () => {
@@ -18,12 +18,10 @@ const UserList = () => {
       const currUserId = localStorage.getItem("crUserId");
 
       try {
-        // Fetch users
         const userResponse = await getAllUsers();
         const newUsers = userResponse.data.userList.filter((user) => user.email !== currEmail);
         setUsers(newUsers);
 
-        // Initialize connections
         const initialConnections = {};
         newUsers.forEach((user) => {
           initialConnections[user._id] = { status: "not connected" };
@@ -43,7 +41,7 @@ const UserList = () => {
   
         const response = await getPendingRequests(currUserId); 
           // console.log("hello");
-          console.log("Pending requests response:", response); // Log the response
+          console.log("Pending requests response:", response);
           const { pendingRequests } = response;
           if (!pendingRequests || pendingRequests.length === 0) {
             console.log("No pending requests found.");
@@ -58,15 +56,12 @@ const UserList = () => {
               updatedConnections[req.to] = { status : "requested" };
             }
           });
-          
           setConnections((prev) => ({ ...prev, ...updatedConnections }));
           console.log(updatedConnections);
-
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
-  
     fetchData();
   }, []); 
 
@@ -74,7 +69,6 @@ const UserList = () => {
     console.log("Updated connections: ", connections);
   }, [connections]);
   
-  // Fetch all users
   // useEffect(() => {
   //   const getUsers = async () => {
   //     let response = await getAllUsers();
@@ -126,14 +120,13 @@ const UserList = () => {
   //   fetchPendingRequests();
   // }, []);
 
-  // Filter users based on search input
   useEffect(() => {
+    const cr = localStorage.getItem("crUserId");
     if (search === "") {
       const filtered = users.filter(
-        (user) => connections[user._id]?.status !== "connected"
+        (user) => !user.connections?.includes(cr)
       );
       setFilteredUsers(filtered);
-      // setFilteredUsers(users);
     } else {
       const filtered = users.filter(
         (user) =>
@@ -143,13 +136,12 @@ const UserList = () => {
           user.interests?.some((interest) => interest.toLowerCase().includes(search.toLowerCase())) || 
           user.skills?.some((skill) => skill.toLowerCase().includes(search.toLowerCase()))
           ) &&
-          connections[user._id]?.status !== "connected"
+          !user.connections?.includes(cr)
       );
       setFilteredUsers(filtered);
     }
-  }, [search, users, connections]);
+  }, [search, users, connections, filteredUsers]);
 
-  // Handle sending connection requests
   const handleConnect = async (userId) => {
     const currUserId = localStorage.getItem("crUserId");
     if (!currUserId) return;
@@ -166,7 +158,6 @@ const UserList = () => {
     }
   };
 
-  // Handle accepting connection requests
   const handleAccept = async (connectionRequestId) => {
     const currUserId = localStorage.getItem("crUserId");
     // console.log(connectionRequestId.from);
@@ -192,14 +183,13 @@ const UserList = () => {
 
   return (
     <Box className="w-full max-w-2xl mx-auto p-6 bg-slate-100 rounded-lg shadow-lg">
-      {/* Toggle View */}
       <Box className="flex justify-around mb-6 cursor-pointer">
         <Typography
           variant="h5"
           className={`font-bold pb-2 ${view === "connect" ? "text-blue-900 border-b-4 border-blue-900" : "text-gray-500"}`}
           onClick={() => setView("connect")}
         >
-          Connect with People
+          Find Connections
         </Typography>
         <Typography
           variant="h5"
@@ -213,13 +203,12 @@ const UserList = () => {
           className={`font-bold pb-2 ${view === "connections" ? "text-blue-900 border-b-4 border-blue-900" : "text-gray-500"}`}
           onClick={() => setView("connections")}
         >
-          Your Connections
+          Connections
         </Typography>
       </Box>
 
       <Divider className="mb-6" />
 
-      {/* View logic */}
       {view === "connect" ? (
         <>
           <TextField
@@ -288,13 +277,11 @@ const UserList = () => {
         <div className="space-y-6">
           {(() => {
             const currentUserId = localStorage.getItem("crUserId");
-            // console.log("Current User ID:", currentUserId);
             const connectedUsers = users.filter((user) => {
               const isConnected = user.connections?.includes(currentUserId);
               return isConnected;
             });
             if (connectedUsers.length > 0) {
-              console.log("Connected Users:", connectedUsers);
               return connectedUsers.map((user) => (
                 <UserCard key={user._id} user={user} isConnected={true} />
               ));

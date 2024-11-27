@@ -13,40 +13,30 @@ const ProfileForm = () => {
     degree: '',
     interest: '',
     techSkills: '',
-    
   });
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    if(e.target.name==='resume'){
-      const reader=new FileReader();
-      reader.onload=()=>{
-        if(reader.readyState===2){
-          setRes(reader.result);
-
-
-        }
-      }
-      reader.readAsDataURL(e.target.files[0])
-    }
-    else{
-      setProfile({...profile,[e.target.name]:e.target.value})
+    if (e.target.name === 'resume') {
+      setRes(e.target.files[0]);  
+    } else {
+      setProfile({ ...profile, [e.target.name]: e.target.value });
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const formData = new FormData();
     Object.keys(profile).forEach(key => {
       if (profile[key]) {
-        formData.set(key, profile[key]);
+        formData.append(key, profile[key]);
       }
     });
     
     if (res) {
-      formData.set('resume', res);
+      formData.append('resume', res);
     }
+    console.log(formData);
     try{
       await updateUser(formData);
       console.log("done")
@@ -118,7 +108,7 @@ const ProfileForm = () => {
           type="file"
           name="resume"
           hidden
-          accept=".pdf" // Restrict to PDF files only
+          accept=".pdf" 
           onChange={handleChange}
         />
         </Button>
@@ -131,7 +121,7 @@ const ProfileForm = () => {
 
       {res && (
         <Typography variant="body2" color="textSecondary" mt={1}>
-          Selected File: {res}
+          Selected File: {res.name}
         </Typography>
       )}
 

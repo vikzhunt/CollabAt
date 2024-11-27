@@ -2,13 +2,8 @@ import User from "./../Modals/user.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
-import { request } from "express";
-import { v2 as cloudinary } from 'cloudinary';
-cloudinary.config({
-  cloud_name: 'dsf5m27d8',
-  api_key: '436869925136154',
-  api_secret: 'GH2LBwysYJpkdlTb1wbO_27cDIo',
-});
+import cloudinary from "../cloudconfig.js";
+
 export const signUp = async (req, res) => {
   try {
     const { email, name, password } = req.body;
@@ -69,55 +64,36 @@ export const getAllUsers = async (req, res) => {
 
 export const updateUser = async (req, res) => {
   
-  const { email, degree, interest, techSkills, resume } = req.body;
-  
+  const { email, degree, interest, techSkills } = req.body;
+  const { resume } = req.files || {}; 
+  console.log(req.files);
   try {
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
     let resumeUrl;
-    // if(resume){
-    //   try{
-    //     resumeUrl = await new Promise((resolve, reject)=>{
-    //       const uploadStream = cloudinary.uploader.upload_stream(
-    //         { resource_type: 'raw', folder: 'resumes' },
-    //         (error, result) => {
-    //           if(error){
-    //             console.error('Error uploading resume to Cloudinary:', error);
-    //             reject(error);
-    //           }else{
-    //             resolve(result.secure_url);
-    //           }
-    //         }
-    //       );
-    //       uploadStream.end(resume.data); // End the stream with the file buffer
-    //     });
-    //   }catch(uploadError){
-    //     console.error('Error during resume upload:', uploadError);
-    //     return res.status(500).json({ message: 'Error uploading resume' });
-    //   }
-    // }
     if (resume) {
-      const uploadResult = await cloudinary.uploader.upload(resume.tempFilePath, {
-        folder: 'resumes', // Optional: Organize your files in Cloudinary
-        resource_type: 'auto', // Automatically detect the file type
-      });
-      resumeUrl = uploadResult.secure_url; // Get the uploaded file's secure URL
+      if (resume.tempFilePath) {
+        const uploadResult = await cloudinary.uploader.upload(resume.tempFilePath, {
+          folder: 'resumes',
+          resource_type: 'auto',
+        });
+        resumeUrl = uploadResult.secure_url;
+      } else {
+        throw new Error('No temporary file path available');
+      }
     }
 
-    console.log(resumeUrl)
-
-    // Update user fields
+    console.log(resumeUrl);
     user.degree = degree;
     user.interest = interest;
     user.techSkills = techSkills;
-    user.resume=resumeUrl
-    // Handle resume upload if needed
-    // You might want to use cloudinary or another upload method here
-    
-    await user.save();
+    if(resumeUrl){
+      user.resume = resumeUrl;
+    }
 
+    await user.save();
     return res.status(200).json({ message: "User updated successfully" });
   } catch (error) {
     return res.status(500).json({ message: "Failed to update user", error: error.message });

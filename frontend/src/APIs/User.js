@@ -30,14 +30,15 @@ export const getAllUsers = async () => {
 
 export const updateUser = async (data) => {
   try {
-    for(const[key,value]of data.entries()){
-      console.log(value);
-
-    }
-    let res = await axios.patch(`${url}/updateUser`, data);
+    const res = await axios.patch(`${url}/updateUser`, data, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return res;
   } catch (error) {
-    console.log(error);
+    console.error('Error in updateUser API call:', error.response?.data || error.message);
+    throw error;
   }
 };
 

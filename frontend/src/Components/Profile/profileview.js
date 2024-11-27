@@ -55,15 +55,14 @@ const ProfileView = () => {
           <strong>Technical Skills:</strong> {profile.techSkills}
         </Typography>
         {/* remove null after backend connected  */}
-        {profile.resume1==null && ( 
-          <Box mt={2}>
-            <Typography variant="body1" sx={{ color: '#333', fontWeight: 'bold', mb: 1 }}>
-              Resume:
-            </Typography>
+        <Box mt={2}>
+          <Typography variant="body1" sx={{ color: '#333', fontWeight: 'bold', mb: 1 }}>
+            Resume:
+          </Typography>
+          {profile.resume ? (
             <Button
               variant="contained"
-              // href={URL.createObjectURL(profile.resume)}
-              href='//'
+              href={profile.resume} // Replace with actual URL if necessary
               target="_blank"
               sx={{
                 mt: 1,
@@ -76,8 +75,20 @@ const ProfileView = () => {
             >
               View Resume
             </Button>
-          </Box>
-        )}
+          ) : (
+            <Button
+              variant="contained"
+              disabled
+              sx={{
+                mt: 1,
+                backgroundColor: '#f5f5f5',
+                color: '#a0a0a0',
+              }}
+            >
+              Not Available
+            </Button>
+          )}
+        </Box>
       </Box>
       
       {/* Profile Picture */}

@@ -1,35 +1,20 @@
 import React from "react";
-import {
-  PersonAdd as PersonAddIcon,
-  CheckCircle as CheckCircleIcon,
-  Done as DoneIcon,
-} from "@mui/icons-material";
-import { Box, Typography, Button } from "@mui/material"; // Import MUI components for styling
+import { PersonAdd as PersonAddIcon, CheckCircle as CheckCircleIcon, Done as DoneIcon } from "@mui/icons-material";
+import { Box, Typography, Button } from "@mui/material";
 
-const UserCard = ({
-  user,
-  onConnect,
-  onAccept,
-  onRemove,
-  isConnected,
-  isRequested,
-  isPending,
-  showAcceptButton,
-}) => {
+const UserCard = ({ user, onConnect, onAccept, onRemove, isConnected, isRequested, isPending, showAcceptButton }) => {
   // // console.log(user);
   // // console.log(isRequested);
   // console.log(showAcceptButton);
   return (
     <Box className="w-full bg-white rounded-lg border hover:bg-yellow-50/20 hover:border-yellow-500 shadow-lg p-6 mb-6">
       <div className="flex items-start space-x-6">
-        {/* User Profile Image */}
         <img
           src="https://images.unsplash.com/photo-1647684379498-4cdcc826556e?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzF8fHByb2ZpbGUlMjBwaG90b3xlbnwwfHwwfHx8MA%3D%3D"
           alt={user.name || "User profile image"}
           className="w-40 h-40 object-cover rounded-lg"
         />
 
-        {/* User Details */}
         <div className="flex-1">
           <Typography variant="h6" className="font-bold text-gray-800">
             {user.name}
@@ -38,22 +23,19 @@ const UserCard = ({
             {user.email}
           </Typography>
           <Typography variant="body2" className="text-gray-500">
-            {user.degree}
+            Eduaction: {user.degree}
           </Typography>
           <Typography variant="body2" className="text-gray-500">
-            {user.interest}
+            Interests: {user.interest}
           </Typography>
           <Typography variant="body2" className="text-gray-500">
-            {user.techSkills?.length
+            Technical Skills: {user.techSkills?.length
               ? user.techSkills.join(", ")
               : "No skills listed"}
           </Typography>{" "}
-          {/* Fallback for tech skills */}
         </div>
 
-        {/* Action Buttons */}
         <div className="flex items-center space-x-4">
-          {/* Conditional rendering for buttons based on connection status */}
           {isRequested ? (
             <Button
               className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-full"
@@ -71,7 +53,7 @@ const UserCard = ({
               <PersonAddIcon />
               <span>Connect</span>
             </Button>
-          ) : isPending && showAcceptButton ? ( // Only show accept button if this is the recipient
+          ) : isPending && showAcceptButton ? ( 
             <Box>
               <Button
                 onClick={onAccept}

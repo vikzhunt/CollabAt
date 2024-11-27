@@ -30,7 +30,10 @@ export const getAllUsers = async () => {
 
 export const updateUser = async (data) => {
   try {
-    console.log(data);
+    for(const[key,value]of data.entries()){
+      console.log(value);
+
+    }
     let res = await axios.patch(`${url}/updateUser`, data);
     return res;
   } catch (error) {
@@ -40,7 +43,7 @@ export const updateUser = async (data) => {
 
 export const getConnections = async (userId) => {
   try {
-    let res = await axios.get(`${url}/getConnections`, userId);
+    let res = await axios.get(`${url}/getConnections/${userId}`, userId);
     return res;
   } catch (error) {
     console.error("Error fetching connections:", error);

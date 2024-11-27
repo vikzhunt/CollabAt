@@ -7,10 +7,10 @@ import dotenv from 'dotenv'
 import http from 'http';
 import { Server } from 'socket.io';
 import fileUpload from "express-fileupload";
-// import cloudinary from 'cloudinary'
+
 dotenv.config()
-const app = express(); // To handle CORS
-app.use(express.json());  // To parse JSON bodies
+const app = express(); 
+app.use(express.json()); 
 app.use(express.urlencoded({ extended: true })); 
 app.use(cors());
 const server = http.createServer(app);
@@ -20,13 +20,13 @@ const io = new Server(server, {
     methods: ["GET", "POST"]
   }
 });
-// cloudinary.config({
-//   cloud_name: 'dsf5m27d8',
-//   api_key: '436869925136154',
-//   api_secret: 'GH2LBwysYJpkdlTb1wbO_27cDIo',
-// });
 
-app.use(fileUpload())
+app.use(fileUpload({
+  useTempFiles: true, 
+  tempFileDir: '/tmp/', 
+  createParentPath: true,
+}));
+
 app.use(bodyParser.json({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 

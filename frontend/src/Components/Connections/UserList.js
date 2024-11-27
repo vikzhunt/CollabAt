@@ -1,20 +1,8 @@
 import React, { useState, useEffect } from "react";
-import {
-  TextField,
-  Box,
-  Typography,
-  InputAdornment,
-  Divider,
-} from "@mui/material";
+import { TextField, Box, Typography, InputAdornment, Divider } from "@mui/material";
 import { Search as SearchIcon } from "@mui/icons-material";
 import UserCard from "./UserCard";
-import {
-  getAllUsers,
-  sendConnectionRequest,
-  acceptConnectionRequest,
-  removeConnectionRequest,
-  getPendingRequests,
-} from "./../../APIs/User.js";
+import { getAllUsers, sendConnectionRequest, acceptConnectionRequest, removeConnectionRequest, getPendingRequests } from "./../../APIs/User.js";
 
 const UserList = () => {
   const [users, setUsers] = useState([]);
@@ -81,58 +69,7 @@ const UserList = () => {
 
   useEffect(() => {
     console.log("Updated connections: ", connections);
-  }, []);
-
-  // useEffect(() => {
-  //   const getUsers = async () => {
-  //     let response = await getAllUsers();
-  //     const curr = localStorage.getItem("email");
-  //     let newresponse = response.data.userList.filter((user) => user.email !== curr);
-  //     setUsers(newresponse);
-
-  //     const initialConnections = {};
-  //     newresponse.forEach((user) => {
-  //       if (!initialConnections[user._id] || initialConnections[user._id].status !== "requested") {
-  //         initialConnections[user._id] = { status: "not connected" };
-  //       }
-  //     });
-  //     setConnections(initialConnections);
-  //   };
-  //   getUsers();
-  // }, []);
-
-  // useEffect(() => {
-  //   const fetchPendingRequests = async () => {
-  //     const currUserId = localStorage.getItem("crUserId");
-  //     if (currUserId) {
-  //       try {
-  //         const response = await getPendingRequests(currUserId);
-  //         // console.log("hello");
-  //         console.log("Pending requests response:", response); // Log the response
-  //         const { pendingRequests } = response;
-  //         if (!pendingRequests || pendingRequests.length === 0) {
-  //           console.log("No pending requests found.");
-  //         }
-  //         setPendingRequests(pendingRequests);
-  //         const updatedConnections = {};
-  //         pendingRequests.forEach((req) => {
-  //           if(req.from){
-  //             updatedConnections[req.from] = { status: "pending" };
-  //           }
-  //           if(req.to){
-  //             updatedConnections[req.to] = { status : "requested" };
-  //           }
-  //         });
-
-  //         setConnections((prev) => ({ ...prev, ...updatedConnections }));
-  //         console.log(updatedConnections);
-  //       } catch (error) {
-  //         console.error("Error fetching pending requests:", error);
-  //       }
-  //     }
-  //   };
-  //   fetchPendingRequests();
-  // }, []);
+  }, [connections]);
 
   useEffect(() => {
     const cr = localStorage.getItem("crUserId");

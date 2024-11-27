@@ -6,29 +6,49 @@ import { Clear as ClearIcon } from '@mui/icons-material';
 import { updateUser } from '../../APIs/User';
 
 const ProfileForm = () => {
-  
+  const [res,setRes]=useState(null);
   const [profile, setProfile] = useState({
     name: '',
     email: '',
     degree: '',
     interest: '',
     techSkills: '',
-    resume: null,
+    
   });
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    const { name, value, files } = e.target;
-    setProfile({
-      ...profile,
-      [name]: files ? files[0] : value,
-    });
+    if(e.target.name==='resume'){
+      const reader=new FileReader();
+      reader.onload=()=>{
+        if(reader.readyState===2){
+          setRes(reader.result);
+
+
+        }
+      }
+      reader.readAsDataURL(e.target.files[0])
+    }
+    else{
+      setProfile({...profile,[e.target.name]:e.target.value})
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const formData = new FormData();
+    Object.keys(profile).forEach(key => {
+      if (profile[key]) {
+        formData.set(key, profile[key]);
+      }
+    });
+    
+    if (res) {
+      formData.set('resume', res);
+    }
     try{
-      await updateUser({ profile });
+      await updateUser(formData);
       console.log("done")
       navigate("/login");
     }
@@ -39,10 +59,7 @@ const ProfileForm = () => {
   };
 
   const clearResume = () => {
-    setProfile({
-      ...profile,
-      resume: null,
-    });
+    setRes(null)
   };
 
   return (
@@ -98,22 +115,23 @@ const ProfileForm = () => {
         >
           Upload Resume
           <input
-            type="file"
-            name="resume"
-            hidden
-            onChange={handleChange}
-          />
+          type="file"
+          name="resume"
+          hidden
+          accept=".pdf" // Restrict to PDF files only
+          onChange={handleChange}
+        />
         </Button>
-        {profile.resume && (
+        {res && (
           <IconButton onClick={clearResume} color="secondary" aria-label="clear resume">
             <ClearIcon />
           </IconButton>
         )}
       </Box>
 
-      {profile.resume && (
+      {res && (
         <Typography variant="body2" color="textSecondary" mt={1}>
-          Selected File: {profile.resume.name}
+          Selected File: {res}
         </Typography>
       )}
 

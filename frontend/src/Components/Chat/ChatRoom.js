@@ -15,7 +15,7 @@ const ChatRoom = () => {
     const newSocket = io("http://localhost:8080"); 
     setSocket(newSocket);
 
-    newSocket.on('message', (newMessage) => {
+    newSocket.on('receive_message', (newMessage) => {
       setMessages((prevMessages) => [...prevMessages, newMessage]);
     });
 
@@ -35,9 +35,11 @@ const ChatRoom = () => {
   useEffect(() => {
   const fetchUsers = async () => {
     try {
-      const data = await getConnections();
-      console.log('Fetched connections:', data); // Check the structure
-      setConnections(data);
+      const userId = localStorage.getItem("crUserId");
+      console.log(userId);
+      const data = await getConnections(userId);
+      console.log('Fetched connections:', data.data.connections); 
+      setConnections(data.data.connections);
     } catch (error) {
       console.error('Error fetching connections:', error);
       alert('Connections Retrieval Failed');
@@ -48,22 +50,44 @@ const ChatRoom = () => {
 
   const handleSendMessage = () => {
     if (message.trim() && selectedConnection) {
-      const newMessage = { username: selectedConnection.name, text: message, time: new Date().toLocaleTimeString() };
-      socket.emit('message', newMessage);
+      const newMessage = { username: selectedConnection.name, text: message, time: new Date().toLocaleTimeString(), room: selectedConnection.id, };
+      socket.emit('send_message', newMessage);
       setMessages((prevMessages) => [...prevMessages, newMessage]);
       setMessage('');
     }
   };
 
+  useEffect(() => {
+    if (socket) {
+      socket.on('display_typing', (username) => {
+        console.log(`${username} is typing...`);
+      });
+    }
+  }, [socket]);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('receive_message', (data) => {
+        if (selectedConnection && data.room === selectedConnection.id) {
+          setMessages((prevMessages) => [...prevMessages, data]);
+        }
+      });
+    }
+  }, [socket, selectedConnection]);
+
   const handleSelectConnection = (connection) => {
     setSelectedConnection(connection);
+    console.log("selected:    ",selectedConnection);
     setMessages([]); 
+    if (socket) {
+      console.log('Joining room:', connection.id);
+      socket.emit('join_room', connection.id); // Ensure users join the room based on connection ID
+    }
   };
 
   return (
     <div className="flex h-screen justify-center">
       <div className="flex h-full max-w-3xl w-full bg-gray-100">
-        {/* Connections List */}
         <div className="w-1/3 bg-slate-100 shadow-lg p-4 overflow-y-auto">
           <Typography variant="h5" className="font-bold text-sky-800 mb-4 p-4">Connections</Typography>
           <List>

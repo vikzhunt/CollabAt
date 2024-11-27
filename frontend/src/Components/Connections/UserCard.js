@@ -1,8 +1,21 @@
 import React from "react";
-import { PersonAdd as PersonAddIcon, CheckCircle as CheckCircleIcon, Done as DoneIcon } from "@mui/icons-material";
+import {
+  PersonAdd as PersonAddIcon,
+  CheckCircle as CheckCircleIcon,
+  Done as DoneIcon,
+} from "@mui/icons-material";
 import { Box, Typography, Button } from "@mui/material"; // Import MUI components for styling
 
-const UserCard = ({ user, onConnect, onAccept, isConnected, isRequested, isPending, showAcceptButton }) => {
+const UserCard = ({
+  user,
+  onConnect,
+  onAccept,
+  onRemove,
+  isConnected,
+  isRequested,
+  isPending,
+  showAcceptButton,
+}) => {
   // // console.log(user);
   // // console.log(isRequested);
   // console.log(showAcceptButton);
@@ -18,27 +31,38 @@ const UserCard = ({ user, onConnect, onAccept, isConnected, isRequested, isPendi
 
         {/* User Details */}
         <div className="flex-1">
-          <Typography variant="h6" className="font-bold text-gray-800">{user.name}</Typography>
-          <Typography variant="body2" className="text-gray-500">{user.email}</Typography>
-          <Typography variant="body2" className="text-gray-500">{user.degree}</Typography>
-          <Typography variant="body2" className="text-gray-500">{user.interest}</Typography>
+          <Typography variant="h6" className="font-bold text-gray-800">
+            {user.name}
+          </Typography>
           <Typography variant="body2" className="text-gray-500">
-            {user.techSkills?.length ? user.techSkills.join(", ") : "No skills listed"}
-          </Typography> {/* Fallback for tech skills */}
+            {user.email}
+          </Typography>
+          <Typography variant="body2" className="text-gray-500">
+            {user.degree}
+          </Typography>
+          <Typography variant="body2" className="text-gray-500">
+            {user.interest}
+          </Typography>
+          <Typography variant="body2" className="text-gray-500">
+            {user.techSkills?.length
+              ? user.techSkills.join(", ")
+              : "No skills listed"}
+          </Typography>{" "}
+          {/* Fallback for tech skills */}
         </div>
 
         {/* Action Buttons */}
         <div className="flex items-center space-x-4">
           {/* Conditional rendering for buttons based on connection status */}
-          {  (isRequested) ? (
-              <Button
-                className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-full"
-                aria-label="Requested"
-              >
-                <PersonAddIcon />
-                <span>Requested</span>
-              </Button>
-            ) : (!isConnected && !isPending) ? (
+          {isRequested ? (
+            <Button
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-full"
+              aria-label="Requested"
+            >
+              <PersonAddIcon />
+              <span>Requested</span>
+            </Button>
+          ) : !isConnected && !isPending ? (
             <Button
               onClick={onConnect}
               className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-full"
@@ -47,7 +71,7 @@ const UserCard = ({ user, onConnect, onAccept, isConnected, isRequested, isPendi
               <PersonAddIcon />
               <span>Connect</span>
             </Button>
-            ) : (isPending) && showAcceptButton ? ( // Only show accept button if this is the recipient
+          ) : isPending && showAcceptButton ? ( // Only show accept button if this is the recipient
             <Box>
               <Button
                 onClick={onAccept}
@@ -65,14 +89,13 @@ const UserCard = ({ user, onConnect, onAccept, isConnected, isRequested, isPendi
                 <span>Reject</span>
               </Button>
             </Box>
-          ) : (isConnected) ? (
-            <Button
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-full"
-              aria-label="Connected"
+          ) : isConnected ? (
+            <button
+              className="bg-blue-50 hover:bg-blue-100 text-blue-800 mt-14 px-4 py-2 rounded"
+              onClick={onRemove}
             >
-              <PersonAddIcon />
-              <span>Connected</span>
-            </Button>
+              <span>Remove</span>
+            </button>
           ) : (
             <Button
               className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-full"

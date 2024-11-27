@@ -2,6 +2,7 @@ import User from "./../Modals/user.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
+import { request } from "express";
 
 export const signUp = async (req, res) => {
   try {
@@ -14,8 +15,12 @@ export const signUp = async (req, res) => {
     const newUser = new User({ email, name, password: hashedPassword });
     await newUser.save();
 
-    const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    return res.status(200).json({ message: "User registered", user: newUser, token });
+    const token = jwt.sign({ email }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+    return res
+      .status(200)
+      .json({ message: "User registered", user: newUser, token });
   } catch (error) {
     return res.status(500).json({ message: "Error during signup", error });
   }
@@ -26,17 +31,22 @@ export const logIn = async (req, res) => {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: "User does not exist", status: -1 });
+    if (!user)
+      return res
+        .status(404)
+        .json({ message: "User does not exist", status: -1 });
 
     const isPwdValid = await bcrypt.compare(password, user.password);
     if (!isPwdValid) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
-    const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ email }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
     return res.status(200).json({ message: "Login Successful", user, token });
   } catch (error) {
-    console.error("Error during login: ",error);
+    console.error("Error during login: ", error);
     return res.status(500).json({ message: "Error during login" });
   }
 };
@@ -46,7 +56,9 @@ export const getAllUsers = async (req, res) => {
     const userList = await User.find({});
     return res.status(200).json({ message: "Users found", userList });
   } catch (error) {
-    return res.status(500).json({ message: "Failed to retrieve users", error: error.message });
+    return res
+      .status(500)
+      .json({ message: "Failed to retrieve users", error: error.message });
   }
 };
 
@@ -92,7 +104,10 @@ export const getConnections = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching connections:", error);
-    return res.status(500).json({ message: "Failed to retrieve connections", error: error.message });
+    return res.status(500).json({
+      message: "Failed to retrieve connections",
+      error: error.message,
+    });
   }
 };
 
@@ -124,18 +139,24 @@ export const acceptConnectionRequest = async (req, res) => {
     await user.save();
     await requester.save();
 
-    return res.status(200).json({ message: "Connection accepted successfully" });
+    return res
+      .status(200)
+      .json({ message: "Connection accepted successfully" });
   } catch (error) {
-    return res.status(500).json({ message: "Error accepting connection", error });
+    return res
+      .status(500)
+      .json({ message: "Error accepting connection", error });
   }
 };
-
 
 export const sendConnectionRequest = async (req, res) => {
   const { fromId, toId, message } = req.body;
 
   try {
-    if (!mongoose.Types.ObjectId.isValid(fromId) || !mongoose.Types.ObjectId.isValid(toId)) {
+    if (
+      !mongoose.Types.ObjectId.isValid(fromId) ||
+      !mongoose.Types.ObjectId.isValid(toId)
+    ) {
       return res.status(400).json({ message: "Invalid user IDs provided" });
     }
     const sender = await User.findById(fromId);
@@ -148,10 +169,9 @@ export const sendConnectionRequest = async (req, res) => {
     if (!Array.isArray(receiver.connectionRequests)) {
       receiver.connectionRequests = [];
     }
-    const existingRequest = receiver.connectionRequests.find(
-      (req) => {
-        if(!req || !req.from) return false; 
-        return req.from.toString() === fromId && req.status === "pending"
+    const existingRequest = receiver.connectionRequests.find((req) => {
+      if (!req || !req.from) return false;
+      return req.from.toString() === fromId && req.status === "pending";
     });
     if (existingRequest) {
       return res.status(400).json({ message: "Request already sent" });
@@ -168,6 +188,50 @@ export const sendConnectionRequest = async (req, res) => {
   }
 };
 
+export const removeConnectionRequest = async (req, res) => {
+  const { fromId, toId } = req.body;
+
+  try {
+    const sender = await User.findById(fromId);
+    const receiver = await User.findById(toId);
+
+    if (!sender || !receiver) {
+      return res.status(404).json({ message: "User(s) not found" });
+    }
+
+    sender.connectionRequests = sender.connectionRequests.filter(
+      (request) =>
+        !(request.to?.toString() === toId || request.from?.toString() === toId)
+    );
+
+    sender.connections = sender.connections.filter(
+      (request) => !(request.toString() === toId || request.toString() === toId)
+    );
+
+    receiver.connectionRequests = receiver.connectionRequests.filter(
+      (request) =>
+        !(
+          request.to?.toString() === fromId ||
+          request.from?.toString() === fromId
+        )
+    );
+
+    receiver.connections = receiver.connections.filter(
+      (request) =>
+        !(request.toString() === fromId || request.toString() === fromId)
+    );
+
+    await sender.save();
+    await receiver.save();
+
+    return res
+      .status(200)
+      .json({ message: "Connection request removed successfully" });
+  } catch (error) {
+    console.error("Error in removeConnectionRequest:", error);
+    return res.status(500).json({ message: "Error removing request", error });
+  }
+};
 
 export const getPendingRequests = async (req, res) => {
   const { userId } = req.params;
@@ -181,11 +245,12 @@ export const getPendingRequests = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const pendingRequests = user.connectionRequests.filter((req) => req.status === "pending");
+    const pendingRequests = user.connectionRequests.filter(
+      (req) => req.status === "pending"
+    );
 
     return res.status(200).json({ pendingRequests });
   } catch (error) {
     return res.status(500).json({ message: "Error fetching requests", error });
   }
 };
-

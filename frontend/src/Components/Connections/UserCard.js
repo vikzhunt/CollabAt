@@ -16,78 +16,91 @@ const UserCard = ({ user, onConnect, onAccept, onRemove, isConnected, isRequeste
         />
 
         <div className="flex-1">
-          <Typography variant="h6" className="font-bold text-gray-800">
+          <Typography variant="h6" className="font-extrabold text-gray-800">
             {user.name}
           </Typography>
-          <Typography variant="body2" className="text-gray-500">
+          <Typography variant="body2" className="text-indigo-500/80">
             {user.email}
           </Typography>
           <Typography variant="body2" className="text-gray-500">
-            Eduaction: {user.degree}
+          <span className="font-bold">Eduaction:</span> {user.degree}
           </Typography>
           <Typography variant="body2" className="text-gray-500">
-            Interests: {user.interest}
+            <span className="font-bold">Interests:</span> {user.interest}
           </Typography>
           <Typography variant="body2" className="text-gray-500">
-            Technical Skills: {user.techSkills?.length
+          <span className="font-bold">Technical Skills:</span>{user.techSkills?.length
               ? user.techSkills.join(", ")
               : "No skills listed"}
           </Typography>{" "}
+          {user.resume && (
+            <div className="mt-4">
+              <a
+                href={user.resume} 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-300"
+              >
+                View Resume
+              </a>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center space-x-4">
           {isRequested ? (
             <Button
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-full"
+              className="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-full shadow-lg hover:shadow-xl transition duration-300"
               aria-label="Requested"
             >
               <PersonAddIcon />
-              <span>Requested</span>
+              <span className="font-semibold">Requested</span>
             </Button>
           ) : !isConnected && !isPending ? (
             <Button
               onClick={onConnect}
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-full"
+              className="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-full shadow-lg hover:shadow-xl transition duration-300"
               aria-label="Send request"
             >
               <PersonAddIcon />
-              <span>Connect</span>
+              <span className="font-semibold">Connect</span>
             </Button>
-          ) : isPending && showAcceptButton ? ( 
+          ) : isPending && showAcceptButton ? (
             <Box>
               <Button
                 onClick={onAccept}
-                className="flex items-center space-x-2 px-4 py-2 bg-green-500 text-white rounded-full"
+                className="flex items-center space-x-2 px-6 py-3 bg-green-500 text-white rounded-full shadow-lg hover:shadow-xl transition duration-300"
                 aria-label="Accept request"
               >
                 <DoneIcon />
-                <span>Accept</span>
+                <span className="font-semibold">Accept</span>
               </Button>
               <Button
-                className="flex items-center space-x-2 px-4 py-2 bg-red-500 text-white rounded-full"
+                className="flex items-center space-x-2 px-6 py-3 bg-red-500 text-white rounded-full shadow-lg hover:shadow-xl transition duration-300"
                 aria-label="Reject request"
               >
                 <CheckCircleIcon />
-                <span>Reject</span>
+                <span className="font-semibold">Reject</span>
               </Button>
             </Box>
           ) : isConnected ? (
             <button
-              className="bg-blue-50 hover:bg-blue-100 text-blue-800 mt-14 px-4 py-2 rounded"
+              className="bg-blue-100 hover:bg-blue-200 text-blue-600 font-semibold mt-4 px-6 py-3 rounded-full shadow-lg transition duration-300"
               onClick={onRemove}
             >
               <span>Remove</span>
             </button>
           ) : (
             <Button
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-full"
-              aria-label="Request recieved"
+              className="flex items-center space-x-2 px-6 py-3 bg-yellow-500 text-white rounded-full shadow-lg hover:shadow-xl transition duration-300"
+              aria-label="Request received"
             >
               <CheckCircleIcon />
-              <span>Request Pending</span>
+              <span className="font-semibold">Request Pending</span>
             </Button>
           )}
         </div>
+
       </div>
     </Box>
   );

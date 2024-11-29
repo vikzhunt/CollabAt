@@ -77,7 +77,8 @@ export const updateUser = async (req, res) => {
       if (resume.tempFilePath) {
         const uploadResult = await cloudinary.uploader.upload(resume.tempFilePath, {
           folder: 'resumes',
-          resource_type: 'auto',
+          resource_type: 'image',
+          format: 'png',
         });
         resumeUrl = uploadResult.secure_url;
       } else {

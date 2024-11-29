@@ -12,6 +12,7 @@ const UserList = () => {
   const [pendingRequests, setPendingRequests] = useState([]);
   const [view, setView] = useState("connect");
   const [reloadData, setReloadData] = useState(false);
+  
   useEffect(() => {
     const fetchData = async () => {
       const currEmail = localStorage.getItem("email");

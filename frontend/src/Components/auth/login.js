@@ -16,21 +16,22 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  
+
   const handleLogin = async (e) => {
     e.preventDefault();
-    try{
+    try {
       let response = await logIn({ email, password });
 
       console.log(response.data.token);
-      
-      localStorage.setItem('token',response.data.token);
-      localStorage.setItem('crUserId',response.data.user._id);
-      localStorage.setItem('email',email);
+
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("crUserId", response.data.user._id);
+      localStorage.setItem("email", email);
+      localStorage.setItem("name", response.data.user.name);
+
       navigate("/dashboard");
-    }
-    catch(error){
-      console.log('login failed',error);
+    } catch (error) {
+      console.log("login failed", error);
       alert("Login Failed");
     }
   };
@@ -131,4 +132,3 @@ const Login = () => {
 };
 
 export default Login;
-

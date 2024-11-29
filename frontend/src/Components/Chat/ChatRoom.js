@@ -1,65 +1,83 @@
 // src/Components/Chat/ChatRoom.js
-import React, { useState, useEffect } from 'react';
-import io from 'socket.io-client';
-import { Typography, TextField, Button, Paper, Avatar, List, ListItem, ListItemAvatar, ListItemText } from '@mui/material';
-import { getConnections } from '../../APIs/User';
+import React, { useState, useEffect } from "react";
+import io from "socket.io-client";
+import {
+  Typography,
+  TextField,
+  Button,
+  Paper,
+  Avatar,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+} from "@mui/material";
+import { getConnections } from "../../APIs/User";
 
 const ChatRoom = () => {
   const [connections, setConnections] = useState([]);
   const [selectedConnection, setSelectedConnection] = useState(null);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const newSocket = io("http://localhost:8080"); 
+    const newSocket = io("http://localhost:8080");
     setSocket(newSocket);
 
-    newSocket.on('receive_message', (newMessage) => {
+    newSocket.on("receive_message", (newMessage) => {
       setMessages((prevMessages) => [...prevMessages, newMessage]);
     });
 
-    newSocket.on('connect', () => {
-      console.log('Connected to server');
+    newSocket.on("connect", () => {
+      console.log("Connected to server");
     });
 
-    newSocket.on('disconnect', () => {
-      console.log('Disconnected from server');
+    newSocket.on("disconnect", () => {
+      console.log("Disconnected from server");
     });
 
     return () => {
-      newSocket.disconnect(); 
+      newSocket.disconnect();
     };
   }, []);
 
+  const userId = localStorage.getItem("crUserId");
   useEffect(() => {
-  const fetchUsers = async () => {
-    try {
-      const userId = localStorage.getItem("crUserId");
-      console.log(userId);
-      const data = await getConnections(userId);
-      console.log('Fetched connections:', data.data.connections); 
-      setConnections(data.data.connections);
-    } catch (error) {
-      console.error('Error fetching connections:', error);
-      alert('Connections Retrieval Failed');
-    }
-  };
-  fetchUsers();
-}, []);
+    const fetchUsers = async () => {
+      try {
+        console.log(userId);
+        const data = await getConnections(userId);
+        console.log("Fetched connections:", data.data.connections);
+        setConnections(data.data.connections);
+      } catch (error) {
+        console.error("Error fetching connections:", error);
+        alert("Connections Retrieval Failed");
+      }
+    };
+    fetchUsers();
+  }, []);
 
   const handleSendMessage = () => {
     if (message.trim() && selectedConnection) {
-      const newMessage = { username: selectedConnection.name, text: message, time: new Date().toLocaleTimeString(), room: selectedConnection.id, };
-      socket.emit('send_message', newMessage);
+      const newMessage = {
+        username: selectedConnection.name,
+        text: message,
+        time: new Date().toLocaleTimeString(),
+        room:
+          selectedConnection._id < userId
+            ? selectedConnection._id + userId
+            : userId + selectedConnection._id,
+      };
+      socket.emit("send_message", newMessage);
       setMessages((prevMessages) => [...prevMessages, newMessage]);
-      setMessage('');
+      setMessage("");
     }
   };
 
   useEffect(() => {
     if (socket) {
-      socket.on('display_typing', (username) => {
+      socket.on("display_typing", (username) => {
         console.log(`${username} is typing...`);
       });
     }
@@ -67,7 +85,7 @@ const ChatRoom = () => {
 
   useEffect(() => {
     if (socket) {
-      socket.on('receive_message', (data) => {
+      socket.on("receive_message", (data) => {
         if (selectedConnection && data.room === selectedConnection.id) {
           setMessages((prevMessages) => [...prevMessages, data]);
         }
@@ -77,11 +95,15 @@ const ChatRoom = () => {
 
   const handleSelectConnection = (connection) => {
     setSelectedConnection(connection);
-    console.log("selected:    ",selectedConnection);
-    setMessages([]); 
+    setMessages([]);
     if (socket) {
-      console.log('Joining room:', connection.id);
-      socket.emit('join_room', connection.id); // Ensure users join the room based on connection ID
+      console.log("Joining room:", connection._id + "" + userId);
+      socket.emit(
+        "join_room",
+        selectedConnection._id < userId
+          ? selectedConnection._id + userId
+          : userId + selectedConnection._id
+      );
     }
   };
 
@@ -89,25 +111,34 @@ const ChatRoom = () => {
     <div className="flex h-screen justify-center">
       <div className="flex h-full max-w-3xl w-full bg-gray-100">
         <div className="w-1/3 bg-slate-100 shadow-lg p-4 overflow-y-auto">
-          <Typography variant="h5" className="font-bold text-sky-800 mb-4 p-4">Connections</Typography>
+          <Typography variant="h5" className="font-bold text-sky-800 mb-4 p-4">
+            Connections
+          </Typography>
           <List>
             {connections && connections.length > 0 ? (
               connections.map((connection) => (
                 <ListItem
                   key={connection.id}
                   button
-                  selected={selectedConnection && selectedConnection.id === connection.id}
+                  selected={
+                    selectedConnection &&
+                    selectedConnection.id === connection.id
+                  }
                   onClick={() => handleSelectConnection(connection)}
                   className="border mb-2 hover:bg-yellow-50/20 hover:border-yellow-500 rounded-md transition duration-200"
                 >
                   <ListItemAvatar>
-                    <Avatar className="bg-blue-500 text-white">{connection.name[0]}</Avatar>
+                    <Avatar className="bg-blue-500 text-white">
+                      {connection.name[0]}
+                    </Avatar>
                   </ListItemAvatar>
                   <ListItemText primary={connection.name} />
                 </ListItem>
               ))
             ) : (
-              <Typography variant="body2" className="text-gray-500">No connections available.</Typography>
+              <Typography variant="body2" className="text-gray-500">
+                No connections available.
+              </Typography>
             )}
           </List>
         </div>
@@ -116,24 +147,48 @@ const ChatRoom = () => {
         <div className="w-2/3 p-4 m-4 flex flex-col bg-white shadow-lg rounded-tl-lg">
           {selectedConnection ? (
             <>
-              <Typography variant="h5" className="font-bold text-blue-700 mb-4 p-4">
+              <Typography
+                variant="h5"
+                className="font-bold text-blue-700 mb-4 p-4"
+              >
                 Chatting with {selectedConnection.name}
               </Typography>
-              <Paper elevation={3} className="flex-1 border border-gray-200 rounded-lg p-4 overflow-y-auto mb-4 h-30">
+              <Paper
+                elevation={3}
+                className="flex-1 border border-gray-200 rounded-lg p-4 overflow-y-auto mb-4 h-30"
+              >
                 {messages.length > 0 ? (
                   messages.map((msg, index) => (
-                    <div key={index} className="flex items-center space-x-3 mb-3">
-                      <Avatar className="bg-blue-500 text-white">{msg.username[0]}</Avatar>
+                    <div
+                      key={index}
+                      className="flex items-center space-x-3 mb-3"
+                    >
+                      <Avatar className="bg-blue-500 text-white">
+                        {msg.username[0]}
+                      </Avatar>
                       <div className="flex flex-col">
-                        <Typography variant="subtitle2" className="font-semibold text-blue-600">
-                          {msg.username} <span className="text-gray-400 text-xs">{msg.time}</span>
+                        <Typography
+                          variant="subtitle2"
+                          className="font-semibold text-blue-600"
+                        >
+                          {msg.username}{" "}
+                          <span className="text-gray-400 text-xs">
+                            {msg.time}
+                          </span>
                         </Typography>
-                        <Typography variant="body2" className="text-gray-700 ">{msg.text}</Typography>
+                        <Typography variant="body2" className="text-gray-700 ">
+                          {msg.text}
+                        </Typography>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <Typography variant="body1" className="text-gray-500 text-center">No messages yet. Start the conversation!</Typography>
+                  <Typography
+                    variant="body1"
+                    className="text-gray-500 text-center"
+                  >
+                    No messages yet. Start the conversation!
+                  </Typography>
                 )}
               </Paper>
 
@@ -156,7 +211,12 @@ const ChatRoom = () => {
               </div>
             </>
           ) : (
-            <Typography variant="h6" className="text-gray-600 self-center mt-10">Select a connection to start chatting.</Typography>
+            <Typography
+              variant="h6"
+              className="text-gray-600 self-center mt-10"
+            >
+              Select a connection to start chatting.
+            </Typography>
           )}
         </div>
       </div>

@@ -1,5 +1,4 @@
 import Resource from "./../Modals/resource.js";
-import mongoose from "mongoose";
 import cloudinary from "../cloudconfig.js";
 
 export const uploadResource = async (req, res) => {
@@ -38,7 +37,7 @@ export const getAllResources = async (req, res) => {
       const resourceList = await Resource.find({});
       return res.status(200).json({ message: "Resources found", resourceList });
     } catch (error) {
-      return res.status(500).json({ message: "Failed to retrieve users", error: error.message });
+      return res.status(500).json({ message: "Failed to retrieve resources", error: error.message });
     }
 };
   

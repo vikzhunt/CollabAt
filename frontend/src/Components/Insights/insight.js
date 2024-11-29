@@ -1,20 +1,42 @@
 // src/Components/InsightsAndBlog/InsightsAndBlog.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Typography, Button, TextField, Paper } from '@mui/material';
+import { getAllBlogs, uploadBlog } from '../../APIs/blog';
 
 const InsightsAndBlog = () => {
-  const [blogPosts, setBlogPosts] = useState([
-    { title: 'The Future of AI', content: 'AI is transforming industries...', author: 'John Doe' },
-    { title: 'Getting Started with Web Development', content: 'Web development is a lucrative field...', author: 'Jane Smith' },
-  ]);
+  const [blogPosts, setBlogPosts] = useState([]);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [author, setAuthor] = useState('');
+  const [reloadData, setReloadData] = useState(false);
 
-  const handleSubmit = () => {
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const newBlog = await getAllBlogs();
+        console.log(newBlog.data.blogList);
+        setBlogPosts(newBlog.data.blogList);
+      }catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    fetchData();
+  }, [reloadData]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     if (title && content && author) {
       const newPost = { title, content, author };
-      setBlogPosts([newPost, ...blogPosts]);
+      console.log(newPost);
+      try{
+        await uploadBlog(newPost);
+        setReloadData(!reloadData);
+        console.log("done");
+      }
+      catch(error){
+        console.log('upload failed',error);
+        alert("Upload Failed");
+      }
       setTitle('');
       setContent('');
       setAuthor('');
@@ -26,8 +48,6 @@ const InsightsAndBlog = () => {
       <Typography variant="h4" className="text-center font-extrabold text-blue-900/90 mb-4 pb-4">
       Insights & Blog
       </Typography>
-
-      {/* Blog Submission Form */}
       <Paper elevation={3} className="p-6 mb-8 bg-white rounded-lg shadow-md">
         <Typography variant="h5" className="font-semibold text-black-800 mb-4">
           Submit a Blog Post
@@ -69,7 +89,6 @@ const InsightsAndBlog = () => {
         </Button>
       </Paper>
 
-      {/* Blog Posts */}
       <Typography variant="h5" className="font-semibold text-blue-800 mb-4 pb-4">
         Recent Blogs
       </Typography>

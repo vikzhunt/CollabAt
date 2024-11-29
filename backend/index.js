@@ -50,7 +50,7 @@ io.on("connection", (socket) => {
   socket.on("send_message", (data) => {
     console.log(data);
     try {
-      if (data.room && data.message) {
+      if (data.room && data.text) {
         io.to(data.room).emit("receive_message", data);
         console.log("Message sent to room:", data.room);
       } else {

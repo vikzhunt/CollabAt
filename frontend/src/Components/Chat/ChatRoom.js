@@ -56,21 +56,21 @@ const ChatRoom = () => {
       }
     };
     fetchUsers();
-  }, []);
+  }, [userId]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (message.trim() && selectedConnection) {
       const newMessage = {
         username: selectedConnection.name,
         text: message,
         time: new Date().toLocaleTimeString(),
         room:
-          selectedConnection._id < userId
-            ? selectedConnection._id + userId
-            : userId + selectedConnection._id,
+          selectedConnection?._id < userId
+            ? selectedConnection?._id + userId
+            : userId + selectedConnection?._id,
       };
-      socket.emit("send_message", newMessage);
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
+      await socket.emit("send_message", newMessage);
+      // console.log(messages);
       setMessage("");
     }
   };
@@ -86,7 +86,7 @@ const ChatRoom = () => {
   useEffect(() => {
     if (socket) {
       socket.on("receive_message", (data) => {
-        if (selectedConnection && data.room === selectedConnection.id) {
+        if (selectedConnection && data.room === selectedConnection?.id && messages[messages.length-1]!=data.text) {
           setMessages((prevMessages) => [...prevMessages, data]);
         }
       });
@@ -96,13 +96,16 @@ const ChatRoom = () => {
   const handleSelectConnection = (connection) => {
     setSelectedConnection(connection);
     setMessages([]);
-    if (socket) {
-      console.log("Joining room:", connection._id + "" + userId);
+    if (socket && connection ) {
+      console.log("Joining room:", connection?._id + "" + userId);
+      console.log(connection._id < userId
+        ? connection._id + userId
+        : userId + connection._id);
       socket.emit(
         "join_room",
-        selectedConnection._id < userId
-          ? selectedConnection._id + userId
-          : userId + selectedConnection._id
+        connection._id < userId
+          ? connection._id + userId
+          : userId + connection._id
       );
     }
   };

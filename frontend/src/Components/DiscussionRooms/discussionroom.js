@@ -30,15 +30,16 @@ const DiscussionRooms = () => {
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
-    socket.on("receive_message", (data) => {
-      console.log(data);
-      setMessages((prevMessages) => [...prevMessages, data]);
-    });
-
+    if(socket){
+      socket.on("receive_message", (data) => {
+        setMessages((prevMessages) => [...prevMessages, data]);
+        console.log(messages);
+      });
+    }
     return () => {
       socket.off("receive_message");
     };
-  }, []);
+  }, [socket,messages]);
 
   const joinRoom = (room) => {
     setMessages([]); // Clear messages on new room selection
@@ -51,11 +52,11 @@ const DiscussionRooms = () => {
       const messageData = {
         room: currentRoom,
         author: localStorage.getItem("name"),
-        message,
+        text:message,
         time: new Date().toLocaleTimeString(),
         file: file ? URL.createObjectURL(file) : null,
       };
-      console.log(message);
+      // console.log(message);
       socket.emit("send_message", messageData);
       setMessage("");
       setFile(null);
@@ -102,11 +103,11 @@ const DiscussionRooms = () => {
           <div className="bg-gray-100 p-6 rounded-lg mb-4 h-64 overflow-y-scroll border border-gray-300">
             {messages.map((msg, index) => (
               <div key={index} className="mb-2">
-                {msg.message.trim() && (
+                {msg.text && (
                   <p className="text-gray-700">
                     <strong className="text-blue-700">{msg.author}</strong>{" "}
                     <span className="text-xs text-gray-500">[{msg.time}]</span>:
-                    <span className="ml-2">{msg.message}</span>
+                    <span className="ml-2">{msg.text}</span>
                   </p>
                 )}
 

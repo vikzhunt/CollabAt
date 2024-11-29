@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { signUp, logIn, getAllUsers, updateUser, getConnections, acceptConnectionRequest, sendConnectionRequest, removeConnectionRequest, getPendingRequests } from "./Controllers/user.js";
+import { getAllResources, uploadResource } from "./Controllers/resource.js";
+
 const route = Router();
 route.post("/signUp", signUp);
 route.post("/logIn", logIn);
@@ -10,5 +12,8 @@ route.post("/acceptConnectionRequest", acceptConnectionRequest);
 route.post("/sendConnectionRequest", sendConnectionRequest);
 route.post("/removeConnectionRequest", removeConnectionRequest);
 route.get("/pendingRequests/:userId", getPendingRequests);
+
+route.post("/uploadResource", uploadResource);
+route.get("/getAllResources", getAllResources);
 
 export default route;

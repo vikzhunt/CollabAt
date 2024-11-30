@@ -1,36 +1,53 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Typography } from '@mui/material';
 import { AttachFile } from '@mui/icons-material';
+import { createTeam, getAllTeams } from '../../APIs/team';
 
 const TeamGroups = () => {
-  const [teams, setTeams] = useState([
-    { id: 1, name: 'Team Alpha', description: 'A team for AI projects', members: ['Alice', 'Bob'], messages: [], isJoined: false },
-    { id: 2, name: 'Web Wizards', description: 'Frontend development team', members: ['Charlie'], messages: [], isJoined: false },
-  ]);
+  const [teams, setTeams] = useState([]);
   const [teamName, setTeamName] = useState('');
   const [teamDescription, setTeamDescription] = useState('');
   const [selectedTeamId, setSelectedTeamId] = useState(null);
   const [message, setMessage] = useState('');
   const [file, setFile] = useState(null);
+  const [reloadData, setReloadData] = useState(false);
 
-  const handleCreateTeam = () => {
-    const newTeam = {
-      id: teams.length + 1,
-      name: teamName,
-      description: teamDescription,
-      members: [],
-      messages: [],
-      isJoined: false,
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const newTeam = await getAllTeams();
+        // console.log(newTeam.data.teamList);
+        setTeams(newTeam.data.teamList);
+      }catch (error) {
+        console.error("Error fetching data:", error);
+      }
     };
-    setTeams([...teams, newTeam]);
-    setTeamName('');
-    setTeamDescription('');
+    fetchData();
+  }, [reloadData]);
+
+  const handleCreateTeam = async (e) => {
+    e.preventDefault();
+    if(teamName && teamDescription ){
+      const crUser = localStorage.getItem("crUserId");
+      const newTeam = { name: teamName, description: teamDescription, userId: crUser };
+      console.log(newTeam);
+      try{
+        await createTeam(newTeam);
+        setReloadData(!reloadData);
+        console.log("done");
+      }
+      catch(error){
+        console.log('Team creation failed',error);
+        alert("Team Creation Failed");
+      }
+      setTeams([...teams, newTeam]);
+      setTeamName('');
+      setTeamDescription('');
+    }
   };
 
   const handleJoinTeam = (teamId) => {
-    setTeams(teams.map(team =>
-      team.id === teamId ? { ...team, isJoined: true, members: [...team.members, 'New Member'] } : team
-    ));
+    
   };
 
   const handleSelectTeam = (teamId) => {
@@ -86,32 +103,35 @@ const TeamGroups = () => {
             Available Teams
           </Typography>
           <ul className="space-y-4">
-            {teams.map(team => (
-              <li key={team.id} className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
-                <div className="flex justify-between items-center">
-                  <div onClick={() => handleSelectTeam(team.id)} className="cursor-pointer">
-                    <h4 className="text-xl font-semibold text-gray-800">{team.name}</h4>
-                    <p className="text-gray-600">{team.description}</p>
+            {teams.map(team => {
+              const isMmber = team.members?.includes(localStorage.getItem("crUserId"));
+              return (
+                <li key={team.id} className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+                  <div className="flex justify-between items-center">
+                    <div onClick={() => handleSelectTeam(team.id)} className="cursor-pointer">
+                      <h4 className="text-xl font-semibold text-gray-800">{team.name}</h4>
+                      <p className="text-gray-600">{team.description}</p>
+                    </div>
+                    { isMmber ? (
+                      <button
+                        onClick={() => handleSelectTeam(team.id)}
+                        className="bg-blue-800/90 hover:bg-blue-700/90 text-white font-semibold py-2 px-4 rounded-md transition duration-200 shadow-sm"
+                      >
+                        Chat
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleJoinTeam(team.id)}
+                        className="bg-green-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-green-700 transition duration-200 shadow-sm"
+                      >
+                        Join
+                      </button>
+                    )}
                   </div>
-                  {!team.isJoined ? (
-                    <button
-                      onClick={() => handleJoinTeam(team.id)}
-                      className="bg-green-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-green-700 transition duration-200 shadow-sm"
-                    >
-                      Join
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => handleSelectTeam(team.id)}
-                      className="bg-blue-800/90 hover:bg-blue-700/90 text-white font-semibold py-2 px-4 rounded-md transition duration-200 shadow-sm"
-                    >
-                      Chat
-                    </button>
-                  )}
-                </div>
-                <p className="text-gray-500 mt-2 text-sm">Members: {team.members.join(', ')}</p>
-              </li>
-            ))}
+                  <p className="text-gray-500 mt-2 text-sm">Members: {team.members ? team.members.join(", ") : "No members"}</p>
+                </li>
+              );
+            })}
           </ul>
         </div>
       </div>

@@ -2,6 +2,7 @@ import { Router } from "express";
 import { signUp, logIn, getAllUsers, updateUser, getConnections, acceptConnectionRequest, sendConnectionRequest, removeConnectionRequest, getPendingRequests } from "./Controllers/user.js";
 import { getAllResources, uploadResource } from "./Controllers/resource.js";
 import { getAllBlogs, uploadBlog } from "./Controllers/blog.js";
+import { createTeam, getAllTeams, joinTeam, sendMessage } from "./Controllers/team.js";
 
 
 const route = Router();
@@ -20,5 +21,11 @@ route.get("/getAllResources", getAllResources);
 
 route.post("/uploadBlog", uploadBlog);
 route.get("/getAllBlogs", getAllBlogs);
+
+route.post("/teams", createTeam);
+route.post("/teams/join", joinTeam);
+route.post("/teams/sendMessage", sendMessage);
+route.get("/getAllTeams", getAllTeams);
+
 
 export default route;

@@ -86,21 +86,18 @@ const ChatRoom = () => {
   useEffect(() => {
     if (socket) {
       socket.on("receive_message", (data) => {
-        if (selectedConnection && data.room === selectedConnection?.id && messages[messages.length-1]!=data.text) {
+        if (selectedConnection && data.room === selectedConnection?.id && messages[messages.length-1]!==data.text) {
           setMessages((prevMessages) => [...prevMessages, data]);
         }
       });
     }
-  }, [socket, selectedConnection]);
+  }, [socket, messages, selectedConnection]);
 
   const handleSelectConnection = (connection) => {
     setSelectedConnection(connection);
     setMessages([]);
     if (socket && connection ) {
       console.log("Joining room:", connection?._id + "" + userId);
-      console.log(connection._id < userId
-        ? connection._id + userId
-        : userId + connection._id);
       socket.emit(
         "join_room",
         connection._id < userId

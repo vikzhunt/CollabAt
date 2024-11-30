@@ -34,7 +34,7 @@ const user = mongoose.Schema({
         enum: ["pending", "accepted", "rejected"],
         default: "pending",
       },
-      message: { type: String }, // Optional message from the requester
+      message: { type: String },
       dateRequested: { type: Date, default: Date.now },
     },
   ],

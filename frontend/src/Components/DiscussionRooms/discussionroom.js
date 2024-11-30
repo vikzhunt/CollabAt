@@ -33,13 +33,12 @@ const DiscussionRooms = () => {
     if(socket){
       socket.on("receive_message", (data) => {
         setMessages((prevMessages) => [...prevMessages, data]);
-        console.log(messages);
       });
     }
     return () => {
       socket.off("receive_message");
     };
-  }, [socket,messages]);
+  }, [ messages, file]);
 
   const joinRoom = (room) => {
     setMessages([]); // Clear messages on new room selection
@@ -52,7 +51,7 @@ const DiscussionRooms = () => {
       const messageData = {
         room: currentRoom,
         author: localStorage.getItem("name"),
-        text:message,
+        text: message ? message : "",
         time: new Date().toLocaleTimeString(),
         file: file ? URL.createObjectURL(file) : null,
       };
